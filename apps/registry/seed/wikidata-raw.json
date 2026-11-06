@@ -1,0 +1,5390 @@
+{
+ "fetched_at": "2026-11-06T14:52:14.467Z",
+ "endpoint": "https://query.wikidata.org/sparql",
+ "query": "SELECT ?item\n  (SAMPLE(?en) AS ?en) (SAMPLE(?fr) AS ?fr)\n  (GROUP_CONCAT(DISTINCT ?alt; separator=\"|\") AS ?alts)\n  (GROUP_CONCAT(DISTINCT STR(?inc); separator=\"|\") AS ?inception)\n  (GROUP_CONCAT(DISTINCT STR(?dis); separator=\"|\") AS ?dissolved)\n  (GROUP_CONCAT(DISTINCT CONCAT(STR(?parent), \"~\", ?parentLabel); separator=\"|\") AS ?parents)\n  (GROUP_CONCAT(DISTINCT ?founderLabel; separator=\"|\") AS ?founders)\n  (GROUP_CONCAT(DISTINCT ?hqLabel; separator=\"|\") AS ?hqs)\n  (GROUP_CONCAT(DISTINCT ?site; separator=\"|\") AS ?websites)\n  (GROUP_CONCAT(DISTINCT ?iso; separator=\"|\") AS ?countries)\nWHERE {\n  { ?item wdt:P452 wd:Q41767 } UNION { ?item wdt:P452 wd:Q63346664 }\n  UNION { ?item wdt:P31/wdt:P279* wd:Q136094627 }\n  OPTIONAL { ?item rdfs:label ?en FILTER(LANG(?en) = \"en\") }\n  OPTIONAL { ?item rdfs:label ?fr FILTER(LANG(?fr) = \"fr\") }\n  OPTIONAL { ?item skos:altLabel ?alt FILTER(LANG(?alt) = \"en\") }\n  OPTIONAL { ?item wdt:P571 ?inc }\n  OPTIONAL { ?item wdt:P576 ?dis }\n  OPTIONAL { ?item wdt:P749 ?parent . ?parent rdfs:label ?parentLabel FILTER(LANG(?parentLabel) = \"en\") }\n  OPTIONAL { ?item wdt:P112 ?f . ?f rdfs:label ?founderLabel FILTER(LANG(?founderLabel) = \"en\") }\n  OPTIONAL { ?item wdt:P159 ?hq . ?hq rdfs:label ?hqLabel FILTER(LANG(?hqLabel) = \"en\") }\n  OPTIONAL { ?item wdt:P856 ?site }\n  OPTIONAL { ?item wdt:P17 ?c . ?c wdt:P297 ?iso }\n}\nGROUP BY ?item",
+ "bindings": [
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q478294"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Fortis Uhren"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Fortis Uhren"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1912-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.fortis-swiss.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q2274882"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "SOYUZ"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q2871891"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Auricoste"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1854-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Paris"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.auricoste.fr"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q2998139"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Cortébert Watch"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1790-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Cortébert"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   },
+   "dissolved": {
+    "type": "literal",
+    "value": "1984-01-01T00:00:00Z"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3205398"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "L’Epée 1839"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "L’Epée 1839"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1839-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Delémont"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.lepee-clock.ch/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3488681"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Société Suisse pour l'Industrie Horlogère"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Société suisse pour l'industrie horlogère"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "SSIH"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1930-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   },
+   "dissolved": {
+    "type": "literal",
+    "value": "1983-01-01T00:00:00Z"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q5953842"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Hyderabad Allwyn Limited"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Hyderabad Allwyn Limited"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Allwyn Metal Works Ltd"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1942-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Hyderabad State"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Hyderabad"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q7923389"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Vestal Watches"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Vestal Watches"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Vestal"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1997-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Costa Mesa"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.vestalwatch.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q10874664"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "CITYCHAMP WATCH & JEWELLERY"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "CITYCHAMP WATCH & JEWELLERY"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Kowloon"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.citychampwatchjewellery.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q15733690"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Vostok Europe"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Vostok Europe"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2003-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Igor Zubovski"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Vilnius"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.vostok-europe.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q15790137"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Bucherer Group"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Bucherer"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1888-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Lucerne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.bucherer.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q17018446"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Dueber-Hampden Watch Company"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q17153839"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "WeWOOD"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "WeWOOD"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2009-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Lamporecchio"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.we-wood.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q17461916"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Louis Erard"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Louis Erard"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1929-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Le Noirmont"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://montres-louiserard.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q52772727"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Marea"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q105070633"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Farer"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q109476677"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Harris Horology"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://harrishorology.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q121108778"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Chronotechna"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q123925399"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://lobor.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q135265514"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Billow Time Watch Co.,Ltd"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2004-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Shenzhen"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q136350717"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Pinko-La Chaux-de-Fonds"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1990-01-31T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   },
+   "dissolved": {
+    "type": "literal",
+    "value": "2010-09-06T00:00:00Z"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q136460350"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "A. Halma clockmaking workshop"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Albert Halma"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Joure"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q136464381"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Bouma clockmaking workshop"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1775-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Engele Klazes Bouma"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Joure"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   },
+   "dissolved": {
+    "type": "literal",
+    "value": "1927-01-01T00:00:00Z"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q137993161"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Bébé Lune Studio"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.bébélune.fr"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q139973271"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Soren Watches"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "SOREN Watches"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2025-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Jonas Boon"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://sorenwatches.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q140174327"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Canon Quartz"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Canon Watches Canon Quartz India M/S. Shree Sai Sales"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1997-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Ahmedabad"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://canonquartz.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q141256416"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Vertex Watches Limited"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q142001578"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Elka Watch Co."
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Elka Watch Co."
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Elka, Elka Watches, Elka Watch Co."
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2022-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Hakim El Kadiri"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Neuchâtel"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.elkawatch.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": ""
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q111426227"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Sea2see"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2015-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Barcelona"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.sea2see.org/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "ES"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q114996821"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Millclock"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "UA"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q118834411"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Jaguar Watches"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1938-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Peter Haas"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Barcelona"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://jaguarswisswatches.com/pt-PT|https://jaguarswisswatches.com/nl-BE|https://jaguarswisswatches.com/it-IT|https://jaguarswisswatches.com/es-ES|https://jaguarswisswatches.com/de-DE"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "ES"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q122943494"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Basel"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://duboisfils.ch/de"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q124116169"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Skmei"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Guangdong SKMEI Watch Manufacturing Co., Ltd."
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2009-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Zhaoqing"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.skmei.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CN"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q124623287"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Lognoné clocks"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Horloges Lognoné"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Théophile Joseph Lognoné"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "FR"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q124808543"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Kross Studio"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Kross Studio"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Kross Studio SA"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2020-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Marco Tedeschi"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Gland"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q125984188"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Bianchet"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Bianchet"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2017-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://bianchet.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q127417972"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Traser"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q130064472"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1870-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Esslingen am Neckar"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "DE"
+   },
+   "dissolved": {
+    "type": "literal",
+    "value": "1992-07-16T00:00:00Z"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q135114212"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Manufacture royale d'horlogerie de Paris"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Paris"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "FR"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q136332199"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1912-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Fredersdorf-Vogelsdorf"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://jundes.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "DE"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q137916758"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "WatchMatic"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "MyWatchMatic, Watch Matic LLC"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2025-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Sheridan"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "US"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q138307980"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "The Geneva School of Watchmaking"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "École d'horlogerie de Genève"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1824-10-13T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Société des arts de Genève"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q138834295"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "B.R.M Chronographes"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Bernard Richards Manufacture"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2003-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Magny-en-Vexin"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://brm-chronographes.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "FR"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q139393625"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "DAO Watches"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Dao Watches, daowatches.com"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "London"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.daowatches.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "GB"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q139549562"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "FEMTOPRINT"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "FEMTOPRINT SA"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2013-12-18T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Agno"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.femtoprint.ch/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q139820151"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Sylvi"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Sylvi watch|Sylvi Watch Brand|Sylvi watches|Sylvi Watches|sylvi.in"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2015-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Krushna Ghevariya|Ishan Kukadia"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Surat"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://sylvi.in"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "IN"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q140136590"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Palazzo Watches & Gems"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "The Palazzo|PWG|Palazzo Di Luxury|Palazzo Watches|Palazzo Watches and Gems"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2024-11-04T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Michael A. Martucci|Mak Khan"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Jersey City"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://palazzowatches.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "US"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q140478694"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Havu Watches Oy"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "HAVU|Havu the wooden watch|Havu Watches|Havu Watches Oy"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2019-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Oulu"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.havuwatches.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "FI"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q141067845"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Beauregard"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2011-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Alexandre Beauregard"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://beauregard.ch/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q141104741"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Sartory-Billard"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Sartory-Billard"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2015-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://sartory-billard.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "FR"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q141325004"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Franchi Menotti"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1974-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://franchimenotti.it/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "IT"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q141747927"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Black Pearl Zircon SA"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Black Pearl Zircon SA"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Zircon Swiss"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1987-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Marc Lederrey"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Biel/Bienne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.zirconswiss.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q141841668"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Marco Tedeschi"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Marco Tedeschi"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "MARCO TEDESCHI|Marco Tedeschi Watches"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2020-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Marco Tedeschi"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Gland"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://marco-tedeschi.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q141842904"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Kross Manufacture"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Kross Manufacture"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Kross Manufacture Sàrl"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2020-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Marco Tedeschi"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Gland"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://marco-tedeschi.com/en/kross-manufacture"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q141918449"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Beauregard"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Beauregard Watches|Beauregard Jewelry|Gemmy Bear"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Alexandre Beauregard"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.beauregard.ch/en|https://www.beauregard.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q62288"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Rolex"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Rolex"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Rolex SA"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1905-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Hans Wilsdorf"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.rolex.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q62341"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Vacheron Constantin"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Vacheron Constantin"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1755-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Jean-Marc Vacheron"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Plan-les-Ouates"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.vacheron-constantin.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q689240~Richemont"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q1771114"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Orient Watch Company"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Orient"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1950-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Shinjuku"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.orient-watch.com/|https://aion.orologiorient.it/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "JP"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q159614~Seiko Epson|http://www.wikidata.org/entity/Q322601~Seiko"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q2091305"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Milus"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1919-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Biel/Bienne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.milus.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q2648846"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Allgemeine Gesellschaft der Schweizerischen Uhrenindustrie"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Allgemeine Gesellschaft der Schweizerischen Uhrenindustrie AG"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1931-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Biel/Bienne|Switzerland"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "dissolved": {
+    "type": "literal",
+    "value": "1983-01-01T00:00:00Z"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q2708181"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Van Cleef & Arpels"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Van Cleef & Arpels"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Van Cleef and Arpels|Van Cleef Arpels"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1896-01-01T00:00:00Z|1974-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "1st arrondissement of Paris|Paris"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.vancleefarpels.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "FR"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q689240~Richemont"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q2761497"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Solvil et Titus"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Solvil et Titus"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1892-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Paul Ditisheim"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.solvil-et-titus.com/hk/en/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "HK"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3075556"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Fondation Qualité Fleurier"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2001-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Fleurier|Canton of Neuchâtel"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.qualite-fleurier.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3119294"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Entreprise Gugumus frères"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Gugumus"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Nancy"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "FR"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3127942"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Harry Winston, Inc."
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Harry Winston"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Harry Winston|Harry Winston Inc|Harry Winston Inc.|Harry H. Winston Jewels, Inc."
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1932-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Harry Winston"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Fifth Avenue|New York City|United States"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.harrywinston.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "US"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q694107~The Swatch Group"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3163305"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Jaz"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1919-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Paris"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://jazwatch.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "FR"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3236436"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Les réveils Bayard"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Les réveils Bayard"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Les reveils Bayard"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1867-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Saint-Nicolas-d'Aliermont"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "FR"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3365612"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Parmigiani Fleurier"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Parmigiani Fleurier"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1975-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Fleurier"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.parmigiani.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3431044"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Richard Mille"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Richard Mille"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2001-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Les Breuleux"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.richardmille.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3555048"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Vaucher manufacture Fleurier"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2003-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Fleurier"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.vauchermanufacture.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3564131"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Candino"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1945-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Biel/Bienne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.candino.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "ES"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q3567414"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "West End Watch Co"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "West End Watch Co."
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1886-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Leytron"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.westendwatchco.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q4039046"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Frédérique Constant"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Frédérique Constant"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Frederique Constant"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1988-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Peter Stas|Aletta Stas"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Plan-les-Ouates"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://frederiqueconstant.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q1368019~Citizen Watch"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q4039519"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Glycine Watch SA"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Glycine Watch"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Glycine"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1914-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Biel/Bienne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.glycine-watch.ch/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q4890183"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Benrus"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1921-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "New York City"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.benrus.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "US"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q4950531"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Bovet Fleurier"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Bovet Fleurier"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1822-05-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Édouard Bovet"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://bovet.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q6060981"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Invicta Watch Group"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Invicta Watch Group"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Invicta"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1837-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Hollywood"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.invictawatch.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "US"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q7370254"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Rotary Watches"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Rotary"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1895-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Regent Street"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.rotarywatches.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "GB"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q8028615"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Wittnauer"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Wittnauer"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Wittnauer Watch Co."
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1890-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "New Rochelle"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.wittnauer.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "US"
+   },
+   "dissolved": {
+    "type": "literal",
+    "value": "2001-01-01T00:00:00Z"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q11089243"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Time Watch Investments Limited"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.timewatch.com.hk/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CN"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q11300325"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Grand Seiko"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1960-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Seiko"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Tokyo"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://grand-seiko.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "JP"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q11715073"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "JS Watch Reykjavík"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "JS Watch"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.jswatch.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "IS"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q14523295"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "88 RUE DU RHONE"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "88 RUE DU RHONE"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2012-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "La Chaux-de-Fonds"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://88rdr.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q15634637"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Sowind Group"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Sowind Group"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "La Chaux-de-Fonds"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q931207~Kering"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q15942781"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Fiyta"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1987-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Nanshan District"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.fiytagroup.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CN"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q16937371"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Grovana Watch"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Grovana Watch"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1924-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Tenniken"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.grovana.ch/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q19520534"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Manufacture Modules Technologies"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Manufacture Modules Technologies"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2015-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q22101765"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Damasko"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Damasko"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1994-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Barbing"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.damasko-watches.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "DE"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q22104639"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Daniel Wellington"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Daniel Wellington"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "DW|dw watch"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2011-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Filip Tysander"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Uppsala"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.danielwellington.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "SE"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q28691403"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Union Horlogère SA"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1883-01-01T00:00:00Z|1890-01-01T00:00:00Z|2011-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Biel/Bienne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.unionhorlogere.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q61356314"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Delma"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1924-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Lengnau"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.delma.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q63205591"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "MPM-Quality"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1994-02-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Frýdek-Místek"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://prim-hodinky.cz/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CZ"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q86726476"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "LIV Swiss Watches"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "LIV Swiss Watches"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "LIV|LIV Watches"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2014-09-28T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Miami|Florida|United States"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.livwatches.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "US"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q96372277"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Aquastar"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1962-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Biel/Bienne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://aquastar.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q108571677"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Nappey"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Nappey"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Besançon"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "FR"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q138109"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Baume et Mercier"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Baume et Mercier"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "鮑姆和梅西耶"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1830-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Bellevue|Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.baume-et-mercier.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q5212365~Damiani"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q177591"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Maurice Lacroix"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Maurice Lacroix"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1975-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Zurich"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.mauricelacroix.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q180014"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Rado"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Rado"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Rado Watch Co.|Rado Uhren AG"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1917-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Lengnau"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.rado.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q694107~The Swatch Group"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q185769"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Zeno-Watch Basel"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Zeno-Watch Basel"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1868-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Basel"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.zeno-watch.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q189601"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Zenith"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Zenith"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Zenith SA"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1865-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Georges Favre-Jacot"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Le Locle"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.zenith-watches.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q504998~LVMH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q278880"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "A. Lange & Söhne"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "A. Lange & Söhne"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "A. Lange & Sohne|F. Lange & Söhne|F. Lange and Söhne|Lange & Sohne"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1845-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Glashütte|Black Forest"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.alange-soehne.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "DE"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q689240~Richemont"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q360802"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Waltham Watch Company"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Waltham Watch Company"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1850-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Aaron Lufkin Dennison"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Waltham|Amsterdam"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "US"
+   },
+   "dissolved": {
+    "type": "literal",
+    "value": "1957-01-01T00:00:00Z"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q376334"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Adriatica"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Adriatica"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Adriatica Watch|Adriatica Watches"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1931-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Minusio"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://adriaticawatches.ch/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q540151"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Corum"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Montres Corum"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Montres Corum Sàrl"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1955-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "La Chaux-de-Fonds"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.corum.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q560976"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Junghans"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Junghans"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Gebr. Junghans AG|Junghans Feinwerktechnik|Junghans Uhren GmbH|Junghans Uhrenfabrik|Uhrenfabrik Junghans GmbH & Co.KG"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1861-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Schramberg"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://junghans.de/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "DE"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q579097"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Vostok watches"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Vostok"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1942-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Chistopol|Tatarstan"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://vostokinc.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "RU"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q603698"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Longines"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Longines"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1832-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Auguste Agassiz"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Saint-Imier"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.longines.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q694107~The Swatch Group"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q628813"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Eterna"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Eterna"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1856-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Grenchen"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.eterna.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q631221"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Cyma Watches"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "CYMA"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1862-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Henri Frédéric Sandoz"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Le Locle"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.cyma.ch/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q645984"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "TAG Heuer"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "TAG Heuer"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Heuer Leonidas SA"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1860-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Marin-Epagnier|La Chaux-de-Fonds|Biel/Bienne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.tagheuer.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q504998~LVMH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q658961"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Piaget"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Piaget"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Piaget SA"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1874-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Georges Piaget"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.piaget.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q689240~Richemont"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q659096"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Patek Philippe & Co."
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Patek Philippe"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Patek Philippe|Patek Philippe Watch Co|Patek Philippe watches|Patek Philippe, SA"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1839-01-01T00:00:00Z|1950-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Adrien Philippe|Antoine Patek"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.patek.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q659224"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Omega SA"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Omega"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Omega"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1848-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Biel/Bienne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.omegawatches.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q694107~The Swatch Group"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q659530"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Tissot"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Tissot"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1853-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Le Locle"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.tissotwatches.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q694107~The Swatch Group"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q662902"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "International Watch Company"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "International Watch Co."
+   },
+   "alts": {
+    "type": "literal",
+    "value": "IWC|International Watch Co|International Watch Co.|IWC Watch Co|IWC Watches"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1868-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Schaffhausen"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.iwc.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q689240~Richemont"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q663300"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Bulova Watch Company"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Bulova"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Bulova"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1875-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Joseph Bulova"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "New York City"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.bulova.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "US"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q1368019~Citizen Watch"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q665740"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Breitling"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Breitling"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Breitling SA"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1884-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Léon Breitling"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Grenchen"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.breitling.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q667425"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Audemars Piguet"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Audemars Piguet"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "AP"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1875-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Jules Audemars"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Le Brassus"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.audemarspiguet.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q670112"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Chopard"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Chopard"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Chopard Watch"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1860-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Louis-Ulysse Chopard"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Meyrin|Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.chopard.de/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q670160"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Roger Dubuis"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Roger Dubuis"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1995-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.rogerdubuis.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q689240~Richemont"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q676416"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Girard-Perregaux"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Girard-Perregaux"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Girard Perregaux|GP Watches"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1791-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "La Chaux-de-Fonds"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.girard-perregaux.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q15634637~Sowind Group"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q676990"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Raymond Weil"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Raymond Weil"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1976-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Geneva"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.raymond-weil.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q680237"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "ETA SA"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "ETA Manufacture Horlogère"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1793-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Grenchen"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.eta.ch|https://www.eta.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q694107~The Swatch Group"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q688410"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Lemania"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Lemania"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1884-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "L'Orient"
+   },
+   "websites": {
+    "type": "literal",
+    "value": ""
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q694107~The Swatch Group"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q689037"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Oris"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Oris"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1904-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Hölstein"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.oris.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q690001"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Ulysse Nardin"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Ulysse Nardin"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1846-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Le Locle"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.ulysse-nardin.ch/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q931207~Kering"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q694107"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "The Swatch Group"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Swatch Group"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Swatch|Swatch AG|Swatch Group|Swatch Group Ltd."
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1931-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Nicolas Hayek"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Biel/Bienne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.swatchgroup.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q752515"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Bulgari"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Bulgari"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Bvlgari|Bulgari S.p.A."
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1884-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Sotirios Voulgaris"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Rome"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "https://www.bulgari.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "IT"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q504998~LVMH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q804327"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Blancpain"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Blancpain"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1735-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "Jehan-Jacques Blancpain"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Paudex"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.blancpain.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q694107~The Swatch Group"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q869734"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Ebel"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Ebel"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1911-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "La Chaux-de-Fonds"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.ebel.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q939816~Movado"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q870335"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Eberhard & Co."
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Eberhard & Co"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1887-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "George-Lucien Eberhard"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Biel/Bienne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.eberhard-co-watches.ch/en/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q1037713"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Carl F. Bucherer"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Carl F. Bucherer"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1888-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Lucerne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.carl-f-bucherer.com/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q1368019"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Citizen Watch"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Citizen Watch Co."
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Citizen|Citizen Holdings"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1918-01-01T00:00:00Z|1930-05-28T00:00:00Z|2007-04-01T00:00:00Z|2016-10-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Tokyo"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.citizen.co.jp"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "JP"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q1379518"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Ronda"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Ronda AG"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1946-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": "William Mosset"
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Lausen"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.ronda.ch/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q1408512"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Festina"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Festina"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1980-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Barcelona"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.festinagroup.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "ES"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q1496822"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Geneva seal"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Poinçon de Genève"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "Poinçon de Genève"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1886-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": ""
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.poincondegeneve.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q1502844"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "MeisterSinger GmbH & Co. KG"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "MeisterSinger"
+   },
+   "alts": {
+    "type": "literal",
+    "value": "MeisterSinger"
+   },
+   "inception": {
+    "type": "literal",
+    "value": "2001-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Münster"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.meistersinger.de"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "DE"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q1573565"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Hamilton Watch Company"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Hamilton"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1892-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Lancaster|Biel/Bienne"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.hamiltonwatch.com"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "US"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q694107~The Swatch Group"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q1651954"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Slava watches"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Slava"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1924-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Moscow"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.slava-moscow.ru/"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "SU"
+   }
+  },
+  {
+   "item": {
+    "type": "uri",
+    "value": "http://www.wikidata.org/entity/Q1725661"
+   },
+   "en": {
+    "xml:lang": "en",
+    "type": "literal",
+    "value": "Mido"
+   },
+   "fr": {
+    "xml:lang": "fr",
+    "type": "literal",
+    "value": "Mido"
+   },
+   "alts": {
+    "type": "literal",
+    "value": ""
+   },
+   "inception": {
+    "type": "literal",
+    "value": "1918-01-01T00:00:00Z"
+   },
+   "founders": {
+    "type": "literal",
+    "value": ""
+   },
+   "hqs": {
+    "type": "literal",
+    "value": "Le Locle"
+   },
+   "websites": {
+    "type": "literal",
+    "value": "http://www.mido.ch"
+   },
+   "countries": {
+    "type": "literal",
+    "value": "CH"
+   },
+   "parents": {
+    "type": "literal",
+    "value": "http://www.wikidata.org/entity/Q694107~The Swatch Group"
+   }
+  }
+ ]
+}
