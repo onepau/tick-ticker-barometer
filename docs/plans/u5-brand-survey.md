@@ -1,0 +1,73 @@
+# Unit 5: brand survey for the price tracker
+
+Researched 6 November 2026. Research only: no code, nothing loaded into D1. Companion file: `u5-reference-candidates.csv` (138 candidate references for Paul to edit).
+
+## Method and etiquette
+
+- `robots.txt` fetched first for every candidate. Product and collection pages were fetched only where `User-agent: *` does not disallow them.
+- One request at a time per domain, 3 seconds apart, user agent `tick-ticker-price-research/1.0 (+https://tick-ticker.com)`. No personal email anywhere.
+- Where a site answered 403 (a block), the brand was dropped. No cookie replay, no user agent change, no headless browser.
+- Bulk URL checking was done by Haiku subagents (one per brand, about 80 to 110 requests each). Lead checks: one spot check per brand of a sampled product URL (HTTP 200, price visible) and a re-check of the three blocked sites.
+- "Price in server HTML" means the price text appears in the response to a plain `curl`, so a plain `fetch` in a Worker should work.
+
+## Result in one line
+
+Five of the ten suggested brands failed (Rolex, Tudor, TAG Heuer, IWC, Panerai: bot-blocked). Two swaps (Hamilton, Rado) pass, giving **seven brands**. Every kept brand serves prices in server HTML, so no JavaScript rendering is needed for any of them.
+
+## Survey table
+
+| Brand           | Prices published (CH / FR / UK / US)                                                                                                                  | `robots.txt` for product pages                                                                                                                                                      | Price in server HTML or JS                                                                                                    | Bot protection seen                                                    | Recommendation                                                                                                |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Omega           | CH yes (CHF). FR, UK, US not reached: `/fr-fr/`, `/en-gb/` and `/en-us/` all redirect to `/en-ch/` (geo redirect, `first_visit_auto_redirect` cookie) | `User-agent: *` then `Allow: /`. No sitemap line; `/sitemap.xml` is 404                                                                                                             | Server HTML (`span.price` "CHF 6’600" plus JSON-LD offers)                                                                    | Akamai Bot Manager cookies; no block in about 36 requests              | **Keep, CH only for now.** FR, UK and US need a decision from Paul (see open questions). Fetch for CH         |
+| Cartier         | Yes in all four (CHF, EUR, GBP, USD)                                                                                                                  | Allowed. Disallowed: `/*/api`, `/*/search?q=*`, `/search/`, filter query strings (`prefn`, `cgid`, `dwvar`). Sitemap in robots                                                      | Server HTML plus JSON-LD in all four. US URLs end in `.html`                                                                  | Akamai and captcha strings in scripts; no challenge served             | **Keep. Fetch.** Pasha and Drive families show no products in the CH listing HTML, so they are not in the CSV |
+| Longines        | Yes in all four                                                                                                                                       | `Allow: /`. Disallowed: `*?filter_*`, `*/reserve/*`, `*/gallery/*`, `*/watch-configurator/*`, `*/graphql?*=*`                                                                       | Server HTML plus JSON-LD offers. Do not call the GraphQL endpoint (disallowed)                                                | Akamai script loaded; no block in about 95 requests                    | **Keep. Fetch.** CH is `/fr-ch/` (no English CH path). FR sitemap is empty, so FR URLs were built from slugs  |
+| Tissot          | Yes in all four                                                                                                                                       | No rule covers product pages. Disallowed: `/*cart*`, `/*search*`, `/*prefn*`, `/*start`, `view=grid`                                                                                | Server HTML plus JSON-LD offer                                                                                                | Cloudflare CDN, reCAPTCHA on forms only; no block                      | **Keep. Fetch.** CH is `/fr-ch/`. Top of range is thin (PRX Carbone at CHF 965 is the highest seen)           |
+| Breitling       | Yes in all four                                                                                                                                       | Allowed on `/ch-en/`, `/fr-fr/`, `/gb-en/`, `/us-en/`. Disallowed: other country paths, `/*?interest=`, `/*/my-account/*/`. `Content-Signal: ai-train=no, search=yes, ai-input=yes` | Server HTML plus JSON-LD. Pages also embed a Saleor pricing state; no endpoint called                                         | Cloudflare passive challenge script on every page; no challenge served | **Keep. Fetch.** JSON-LD `priceValidUntil` was 2026-11-13, so do not use it as the observation date           |
+| Hamilton (swap) | Yes in all four                                                                                                                                       | `*` group disallows `*/catalog/product/view/` and `/*?`. Product URLs (`/<market>/h<code>-<slug>.html`) are not caught                                                              | Server HTML (`itemprop` price, `span.price`)                                                                                  | Akamai and captcha strings in scripts; no block in 80 product fetches  | **Keep. Fetch.** Never append query strings (blocked by `/*?`)                                                |
+| Rado (swap)     | Yes in all four. CH is `/fr_ch/` (`/en_ch/` returns 404)                                                                                              | Only `/catalogsearch/` disallowed                                                                                                                                                   | Server HTML. Read the displayed `<span class="price">`; on some GB pages `data-price-amount` differs from the displayed price | Akamai Bot Manager cookies; no block                                   | **Keep. Fetch.** Fewer references in CH and FR sitemaps                                                       |
+| Rolex           | Not verified: 403 on the product page and the market home page                                                                                        | Allowed for generic bots (disallows search, wishlist, dealer pages, `/content/rolex/`). `Crawl-delay: 2`                                                                            | Not reachable                                                                                                                 | 403 to a plain, honestly labelled request                              | **Drop** (blocked). Rolex is also not known for publishing list prices online                                 |
+| Tudor           | Not verified: 403 on a product page and on `/en`                                                                                                      | Allowed (disallows `*?q=`, `*/search`, `*/wishlist`)                                                                                                                                | Not reachable                                                                                                                 | 403                                                                    | **Drop** (blocked)                                                                                            |
+| TAG Heuer       | Not verified: 403 on `/ch/en/` and `/ch/en/watches`                                                                                                   | Crawl-delay 5. Disallows `/*pid*`, `/*cgid*`, `/*search*`, `/Product-Show/` and others                                                                                              | Not reachable                                                                                                                 | 403                                                                    | **Drop** (blocked)                                                                                            |
+| IWC             | Not verified: `robots.txt` itself returns 403 (Akamai "Access Denied")                                                                                | Unknown                                                                                                                                                                             | Not reachable                                                                                                                 | Akamai block                                                           | **Drop** (blocked)                                                                                            |
+| Panerai         | Not verified: `robots.txt` itself returns 403 (Akamai "Access Denied")                                                                                | Unknown                                                                                                                                                                             | Not reachable                                                                                                                 | Akamai block                                                           | **Drop** (blocked)                                                                                            |
+
+Candidates that fell at the first hurdle but were looked at for swaps: Zenith and Hublot return 403 on `robots.txt`, so they were not pursued. Oris, Montblanc, Bell & Ross and Grand Seiko have fetchable `robots.txt` files and were not examined further (time). They are the next swaps if Paul wants a higher-end mix.
+
+## Tax and currency
+
+Paul's brief: CH, FR and UK prices include tax, US prices exclude it.
+
+| Brand                            | What the pages say                                                                                                               |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Breitling                        | Confirmed on page: CH "VAT Incl.", FR "TVA incluse", UK "VAT Incl.", US "Excl. Sales Tax"                                        |
+| Rado                             | Price keys are incl. tax on UK, FR and CH; US script uses excl.-tax keys (inferred from Magento config, not checked at checkout) |
+| Hamilton                         | UK terms state VAT included; CH, FR and US not verified                                                                          |
+| Cartier, Omega, Longines, Tissot | Not stated on product pages. Cart strings suggest tax included outside the US. Needs a manual check                              |
+
+All US list prices at these brands are very likely pre-sales-tax, as expected, but only Breitling states it on the page.
+
+## Pilot recommendation for unit 6
+
+The brief asked for one static and one JavaScript-rendered pilot. **None of the seven kept brands needs JavaScript for prices**, so there is no genuine JS-rendered pilot among them. The only brands that would have needed a browser (Rolex, Tudor, TAG Heuer, IWC, Panerai) block automated requests, and we do not work around blocks.
+
+Suggested pilots instead:
+
+1. **Static: Cartier.** Four markets with consistent JSON-LD, 20 references, 18 with a US URL, no block seen. Good test of locale parsing (`CHF 7,000`, `8,300€`, `£7,250`, `$7,800`).
+2. **Hardest case: Omega**, if Paul wants a second brand that exercises the "browser or market handling" path. The site geo-redirects FR, UK and US visitors to the CH site, so reaching those markets probably needs in-market access or Cloudflare Browser Rendering with a market selection. This is a decision for Paul because it edges towards working around a redirect. If he prefers to stay strictly plain `fetch`, use **Breitling** (four markets, VAT labelled on page, JSON-LD) as the second pilot.
+
+## Open questions for Paul
+
+1. **Omega FR, UK and US.** Accept CH-only for Omega, drop Omega, or authorise a market-selection approach in unit 6?
+2. **Brand count.** Seven brands, about 138 references. The brief targeted ten brands. Add Oris, Montblanc, Bell & Ross or Grand Seiko (robots fetchable, not yet surveyed), or accept seven?
+3. **Mix.** The kept set skews mid-range (Tissot, Hamilton, Rado, Longines). Cartier and Breitling are the only luxury names. This is the main consequence of the blocked brands.
+4. **Out-of-stock models** (several Longines L3.769 pages show OutOfStock). Keep them (list price still shown) or swap?
+
+## Caveats on the CSV
+
+- URLs were fetched with HTTP 200 and matched on reference code by the subagents. I re-checked one URL per brand myself (all 200, price visible). The other URLs have not been individually re-verified.
+- Blank URL cells mean the model is not sold in that market, was missing from the sitemap, or returned 404.
+- `diameter_mm` is blank for rectangular or square cases (Cartier Tank and Santos, Longines DolceVita, Hamilton Ventura); dimensions are in `notes`.
+- `material` is blank where the page does not state it.
+- Rado and Tissot have 19 references each.
+- Some FR and CH pages use different model names from the US names; the CSV uses one name per reference.
+- Prices were not captured. This unit only collected product URLs.
