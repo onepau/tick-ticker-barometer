@@ -1,0 +1,24 @@
+# Public brand registry and price pages (unit 1 onwards). Unlike `baromontres`, this
+# Worker is public and indexable; it shares the `baromontres` D1 database and only
+# reads the registry and price tables.
+name = "tick-ticker-registry"
+main = "src/index.ts"
+compatibility_date = "2024-11-12"
+compatibility_flags = ["nodejs_compat"]
+
+# No workers.dev URL: the Worker is reached through its own hostname only.
+workers_dev = false
+
+# TODO(unit 3): confirm the hostname (working name registry.tick-ticker.com, also the
+# REGISTRY_ORIGIN constant in packages/shared/src/registry.ts), then add:
+# routes = [{ pattern = "registry.tick-ticker.com", custom_domain = true }]
+# Not deployed yet. The Cache API only takes effect on a custom domain.
+
+[[d1_databases]]
+binding = "DB"
+database_name = "baromontres"
+database_id = "40793010-0c4d-4a80-a1af-963a50273fc5"
+migrations_dir = "../../migrations"
+
+[observability]
+enabled = true
