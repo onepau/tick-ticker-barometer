@@ -13,7 +13,9 @@ export type MarketCode = "CH" | "FR" | "UK" | "US";
 export type CurrencyCode = "CHF" | "EUR" | "GBP" | "USD";
 export type PriceStatus = "ok" | "price_on_request" | "unavailable" | "error";
 export type CaptureTrigger = "cron" | "manual";
-export type FetchMethod = "fetch" | "browser";
+export type FetchMethod = "fetch" | "browser" | "manual";
+/** Where a price came from: the brand's own site or an authorised retailer (0008). */
+export type SourceKey = `brand:${string}` | `retailer:${string}`;
 
 export const PRICE_STATUSES: readonly PriceStatus[] = [
   "ok",
@@ -32,11 +34,14 @@ export interface PriceSourceRow {
   id: number;
   brand_id: number; // brands.id (unit 1)
   market_code: MarketCode;
+  source: SourceKey;
   url_template: string | null;
   adapter_key: string | null;
   method: FetchMethod;
   robots_ok: 0 | 1;
+  robots_rules: string | null; // JSON
   checked_at: string | null;
+  tax_label: string | null;
   notes: string | null;
   created_at: string;
 }
@@ -53,6 +58,9 @@ export interface PriceSnapshotRow {
   evidence_key: string | null;
   content_hash: string | null;
   run_id: number | null;
+  source: SourceKey | null;
+  method: FetchMethod | null;
+  tax_label: string | null;
 }
 
 export interface CaptureRunRow {
@@ -84,6 +92,9 @@ export interface NewPriceSnapshot {
   evidence_key?: string | null;
   content_hash?: string | null;
   run_id?: number | null;
+  source?: SourceKey | null;
+  method?: FetchMethod | null;
+  tax_label?: string | null;
 }
 
 export interface PriceChange {
@@ -120,6 +131,30 @@ export function assertValidSnapshot(s: NewPriceSnapshot): void {
   if (!/^[A-Z]{3}$/.test(s.currency)) {
     throw new Error(`invalid currency code: ${s.currency}`);
   }
+  if (s.source != null && !isSourceKey(s.source)) {
+    throw new Error(`invalid source: ${String(s.source)}`);
+  }
+}
+
+/** True for 'brand:<domain>' or 'retailer:<domain>'. */
+export function isSourceKey(v: unknown): v is SourceKey {
+  return (
+    typeof v === "string" &&
+    /^(brand|retailer):[a-z0-9.-]+\.[a-z]{2,}$/.test(v)
+  );
+}
+
+/** Builds a source key from a page URL or hostname, e.g. brand:www.cartier.com. */
+export function sourceKey(
+  kind: "brand" | "retailer",
+  urlOrHost: string,
+): SourceKey {
+  const host = urlOrHost.includes("://")
+    ? new URL(urlOrHost).hostname
+    : urlOrHost;
+  const key = `${kind}:${host.toLowerCase()}`;
+  if (!isSourceKey(key)) throw new Error(`invalid source host: ${urlOrHost}`);
+  return key;
 }
 
 // ---------------------------------------------------------------------------
@@ -214,9 +249,10 @@ export async function insertPriceSnapshot(
   const row = await db
     .prepare(
       `INSERT INTO price_snapshots
-         (reference_id, market_code, amount_minor, currency, status,
-          captured_at, source_url, evidence_key, content_hash, run_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           (reference_id, market_code, amount_minor, currency, status,
+          captured_at, source_url, evidence_key, content_hash, run_id,
+          source, method, tax_label)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        RETURNING id`,
     )
     .bind(
@@ -230,6 +266,9 @@ export async function insertPriceSnapshot(
       s.evidence_key ?? null,
       s.content_hash ?? null,
       s.run_id ?? null,
+      s.source ?? null,
+      s.method ?? null,
+      s.tax_label ?? null,
     )
     .first<{ id: number }>();
   if (!row) throw new Error("insertPriceSnapshot: insert returned no id");
@@ -267,7 +306,8 @@ export async function getLatestPrices(
   const { results } = await db
     .prepare(
       `SELECT id, reference_id, market_code, amount_minor, currency, status,
-              captured_at, source_url, evidence_key, content_hash, run_id
+              captured_at, source_url, evidence_key, content_hash, run_id,
+              source, method, tax_label
          FROM (
            SELECT *,
                   ROW_NUMBER() OVER (
@@ -310,7 +350,8 @@ export async function getPriceHistory(
   const { results } = await db
     .prepare(
       `SELECT id, reference_id, market_code, amount_minor, currency, status,
-              captured_at, source_url, evidence_key, content_hash, run_id
+              captured_at, source_url, evidence_key, content_hash, run_id,
+              source, method, tax_label
          FROM price_snapshots
         WHERE ${where.join(" AND ")}
         ORDER BY market_code, captured_at, id`,
@@ -419,4 +460,345 @@ export async function getFxRate(
     )
     .bind(currency, onOrBefore)
     .first<FxRateRow>();
+}
+
+// ---------------------------------------------------------------------------
+// Unit 6: sources by domain, reference URLs, capture targets (migration 0008)
+// ---------------------------------------------------------------------------
+
+export interface UpsertPriceSource {
+  brand_id: number;
+  market_code: MarketCode;
+  source: SourceKey;
+  method: FetchMethod;
+  url_template?: string | null;
+  adapter_key?: string | null;
+  robots_ok?: boolean;
+  robots_rules?: unknown;
+  checked_at?: string | null;
+  tax_label?: string | null;
+  notes?: string | null;
+}
+
+/**
+ * Inserts or updates a source. Fields left undefined keep their stored value, so
+ * the robots check and the tax label can be recorded separately.
+ */
+export async function upsertPriceSource(
+  db: D1Database,
+  s: UpsertPriceSource,
+): Promise<void> {
+  if (!isSourceKey(s.source)) throw new Error(`invalid source: ${s.source}`);
+  const opt = <T>(v: T | undefined) => (v === undefined ? null : v);
+  await db
+    .prepare(
+      `INSERT INTO price_sources
+         (brand_id, market_code, source, method, url_template, adapter_key,
+          robots_ok, robots_rules, checked_at, tax_label, notes)
+       VALUES (?, ?, ?, ?, ?, ?, COALESCE(?, 0), ?, ?, ?, ?)
+       ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET
+         url_template = COALESCE(excluded.url_template, url_template),
+         adapter_key  = COALESCE(excluded.adapter_key, adapter_key),
+         robots_ok    = CASE WHEN ? IS NULL THEN robots_ok ELSE excluded.robots_ok END,
+         robots_rules = COALESCE(excluded.robots_rules, robots_rules),
+         checked_at   = COALESCE(excluded.checked_at, checked_at),
+         tax_label    = COALESCE(excluded.tax_label, tax_label),
+         notes        = COALESCE(excluded.notes, notes)`,
+    )
+    .bind(
+      s.brand_id,
+      s.market_code,
+      s.source,
+      s.method,
+      opt(s.url_template),
+      opt(s.adapter_key),
+      s.robots_ok === undefined ? null : s.robots_ok ? 1 : 0,
+      s.robots_rules === undefined ? null : JSON.stringify(s.robots_rules),
+      opt(s.checked_at),
+      opt(s.tax_label),
+      opt(s.notes),
+      s.robots_ok === undefined ? null : 1,
+    )
+    .run();
+}
+
+/** Records the robots.txt outcome for every source on one domain. */
+export async function recordRobotsCheck(
+  db: D1Database,
+  source: SourceKey,
+  robotsOk: boolean,
+  rules: unknown,
+  checkedAt: string = new Date().toISOString(),
+): Promise<void> {
+  await db
+    .prepare(
+      `UPDATE price_sources
+          SET robots_ok = ?, robots_rules = ?, checked_at = ?
+        WHERE source = ? AND method <> 'manual'`,
+    )
+    .bind(robotsOk ? 1 : 0, JSON.stringify(rules), checkedAt, source)
+    .run();
+}
+
+export async function upsertReferencePriceUrl(
+  db: D1Database,
+  r: {
+    reference_id: number;
+    market_code: MarketCode;
+    source: SourceKey;
+    url: string;
+    notes?: string | null;
+  },
+): Promise<void> {
+  await db
+    .prepare(
+      `INSERT INTO reference_price_urls (reference_id, market_code, source, url, notes)
+       VALUES (?, ?, ?, ?, ?)
+       ON CONFLICT(reference_id, market_code, source) DO UPDATE SET
+         url = excluded.url, notes = excluded.notes, active = 1,
+         updated_at = datetime('now')`,
+    )
+    .bind(r.reference_id, r.market_code, r.source, r.url, r.notes ?? null)
+    .run();
+}
+
+/** One reference × market × source page to fetch. */
+export interface CaptureTarget {
+  url_id: number;
+  reference_id: number;
+  ref_code: string;
+  reference_slug: string;
+  brand_id: number;
+  brand_slug: string;
+  market_code: MarketCode;
+  currency: CurrencyCode;
+  source: SourceKey;
+  url: string;
+  adapter_key: string | null;
+}
+
+export interface CaptureTargetFilter {
+  brandSlugs?: string[];
+  markets?: MarketCode[];
+  referenceIds?: number[];
+  /** Skip targets that already have a snapshot in this run (resume). */
+  excludeRunId?: number;
+  limit?: number;
+}
+
+/** Active fetchable pages (manual sources are never fetched). */
+export async function listCaptureTargets(
+  db: D1Database,
+  f: CaptureTargetFilter = {},
+): Promise<CaptureTarget[]> {
+  const where = ["u.active = 1", "r.active = 1"];
+  const binds: (string | number)[] = [];
+  const inList = (col: string, vals: (string | number)[]) => {
+    where.push(`${col} IN (${vals.map(() => "?").join(", ")})`);
+    binds.push(...vals);
+  };
+  if (f.brandSlugs?.length) inList("b.slug", f.brandSlugs);
+  if (f.markets?.length) inList("u.market_code", f.markets);
+  if (f.referenceIds?.length) inList("u.reference_id", f.referenceIds);
+  if (f.excludeRunId !== undefined) {
+    where.push(
+      `NOT EXISTS (SELECT 1 FROM price_snapshots s
+                    WHERE s.run_id = ? AND s.reference_id = u.reference_id
+                      AND s.market_code = u.market_code AND s.source = u.source)`,
+    );
+    binds.push(f.excludeRunId);
+  }
+  const limit = f.limit !== undefined ? `LIMIT ${Math.max(0, f.limit | 0)}` : "";
+  const { results } = await db
+    .prepare(
+      `SELECT u.id AS url_id, u.reference_id, r.ref_code, r.slug AS reference_slug,
+              b.id AS brand_id, b.slug AS brand_slug, u.market_code, m.currency,
+              u.source, u.url,
+              (SELECT ps.adapter_key FROM price_sources ps
+                WHERE ps.brand_id = b.id AND ps.market_code = u.market_code
+                  AND ps.source = u.source AND ps.method = 'fetch') AS adapter_key
+         FROM reference_price_urls u
+         JOIN watch_references r ON r.id = u.reference_id
+         JOIN brands b ON b.id = r.brand_id
+         JOIN price_markets m ON m.code = u.market_code
+        WHERE ${where.join(" AND ")}
+        ORDER BY u.source, b.slug, r.ref_code, u.market_code
+        ${limit}`,
+    )
+    .bind(...binds)
+    .all<CaptureTarget>();
+  return results;
+}
+
+/** The latest unfinished run with this trigger, if any. */
+export async function findOpenCaptureRun(
+  db: D1Database,
+  trigger: CaptureTrigger,
+): Promise<CaptureRunRow | null> {
+  return db
+    .prepare(
+      `SELECT id, started_at, finished_at, "trigger" AS "trigger", counts, errors
+         FROM capture_runs
+        WHERE "trigger" = ? AND finished_at IS NULL
+        ORDER BY started_at DESC, id DESC LIMIT 1`,
+    )
+    .bind(trigger)
+    .first<CaptureRunRow>();
+}
+
+/** The latest run with this trigger started on or after the given instant. */
+export async function findCaptureRunSince(
+  db: D1Database,
+  trigger: CaptureTrigger,
+  since: string,
+): Promise<CaptureRunRow | null> {
+  return db
+    .prepare(
+      `SELECT id, started_at, finished_at, "trigger" AS "trigger", counts, errors
+         FROM capture_runs
+        WHERE "trigger" = ? AND started_at >= ?
+        ORDER BY started_at DESC, id DESC LIMIT 1`,
+    )
+    .bind(trigger, since)
+    .first<CaptureRunRow>();
+}
+
+/** Snapshot counts by status for one run. */
+export async function countRunSnapshots(
+  db: D1Database,
+  runId: number,
+): Promise<Record<string, number>> {
+  const { results } = await db
+    .prepare(
+      `SELECT status, COUNT(*) AS n FROM price_snapshots WHERE run_id = ? GROUP BY status`,
+    )
+    .bind(runId)
+    .all<{ status: string; n: number }>();
+  return Object.fromEntries(results.map((r) => [r.status, r.n]));
+}
+
+// ---------------------------------------------------------------------------
+// Catalogue check: retailer prices count only after a manual brand capture
+// ---------------------------------------------------------------------------
+
+export async function hasManualBrandCapture(
+  db: D1Database,
+  referenceId: number,
+): Promise<boolean> {
+  const row = await db
+    .prepare(
+      `SELECT 1 AS ok FROM price_snapshots
+        WHERE reference_id = ? AND method = 'manual'
+          AND source GLOB 'brand:*' AND status = 'ok' LIMIT 1`,
+    )
+    .bind(referenceId)
+    .first<{ ok: number }>();
+  return row !== null;
+}
+
+export interface UnconfirmedRetailerRow {
+  reference_id: number;
+  reference_slug: string;
+  source: SourceKey;
+  market_code: MarketCode;
+  snapshots: number;
+}
+
+/**
+ * Retailer prices that do not count yet: the reference has no 'ok' manual
+ * capture from the brand's own site. These are flagged, not published.
+ */
+export async function listUnconfirmedRetailerPrices(
+  db: D1Database,
+): Promise<UnconfirmedRetailerRow[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT s.reference_id, r.slug AS reference_slug, s.source, s.market_code,
+              COUNT(*) AS snapshots
+         FROM price_snapshots s
+         JOIN watch_references r ON r.id = s.reference_id
+        WHERE s.source GLOB 'retailer:*'
+          AND NOT EXISTS (
+                SELECT 1 FROM price_snapshots m
+                 WHERE m.reference_id = s.reference_id AND m.method = 'manual'
+                   AND m.source GLOB 'brand:*' AND m.status = 'ok')
+        GROUP BY s.reference_id, s.source, s.market_code
+        ORDER BY r.slug, s.market_code`,
+    )
+    .all<UnconfirmedRetailerRow>();
+  return results;
+}
+
+// ---------------------------------------------------------------------------
+// References: matching a code seen on a page, and adding one (bookmarklet)
+// ---------------------------------------------------------------------------
+
+/**
+ * Forms a reference code may take on a brand page: Rolex shows M126610LN-0001
+ * for the catalogue reference 126610LN; Panerai URLs carry pam01707.
+ */
+export function refCodeVariants(code: string): string[] {
+  const n = code
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  if (!n) return [];
+  const out = new Set<string>([n, n.replace(/-/g, "")]);
+  const noSuffix = n.replace(/-\d{4}$/, "");
+  out.add(noSuffix);
+  if (/^m\d/.test(noSuffix)) out.add(noSuffix.slice(1));
+  if (/^m\d/.test(n)) out.add(n.slice(1));
+  return [...out].filter(Boolean);
+}
+
+export interface ReferenceMatch {
+  id: number;
+  slug: string;
+  ref_code: string;
+  brand_id: number;
+}
+
+/** Finds a brand's reference by a code seen on a page, tolerating format variants. */
+export async function findReferenceByCode(
+  db: D1Database,
+  brandId: number,
+  code: string,
+): Promise<ReferenceMatch | null> {
+  const wanted = new Set(refCodeVariants(code));
+  if (wanted.size === 0) return null;
+  const { results } = await db
+    .prepare(
+      `SELECT id, slug, ref_code, brand_id FROM watch_references WHERE brand_id = ?`,
+    )
+    .bind(brandId)
+    .all<ReferenceMatch>();
+  for (const r of results) {
+    if (refCodeVariants(r.ref_code).some((v) => wanted.has(v))) return r;
+  }
+  return null;
+}
+
+/** Adds a reference (bookmarklet create=1). Returns the new or existing row. */
+export async function insertWatchReference(
+  db: D1Database,
+  r: { brand_id: number; slug: string; ref_code: string; name: string; family?: string | null; notes?: string | null },
+): Promise<ReferenceMatch> {
+  await db
+    .prepare(
+      `INSERT INTO watch_references (brand_id, slug, ref_code, name, family, notes)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON CONFLICT(brand_id, ref_code) DO NOTHING`,
+    )
+    .bind(r.brand_id, r.slug, r.ref_code, r.name, r.family ?? null, r.notes ?? null)
+    .run();
+  const row = await db
+    .prepare(
+      `SELECT id, slug, ref_code, brand_id FROM watch_references
+        WHERE brand_id = ? AND ref_code = ?`,
+    )
+    .bind(r.brand_id, r.ref_code)
+    .first<ReferenceMatch>();
+  if (!row) throw new Error("insertWatchReference: row not found after insert");
+  return row;
 }

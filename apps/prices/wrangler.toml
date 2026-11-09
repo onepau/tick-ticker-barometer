@@ -1,0 +1,44 @@
+# List-price capture Worker (unit 6). Fetches official list prices from brand and
+# authorised-retailer product pages, stores an HTML extract of each page in R2 as
+# evidence, and accepts Paul's manual captures from the bookmarklet.
+# Not deployed. Needs, before the first deploy (see README.md):
+#   - the R2 bucket below created,
+#   - the secrets RUN_TOKEN and CAPTURE_TOKEN set (wrangler secret put …),
+#   - a hostname for the capture page (route below), ideally behind Cloudflare Access.
+name = "tick-ticker-prices"
+main = "src/index.ts"
+compatibility_date = "2024-11-12"
+compatibility_flags = ["nodejs_compat"]
+
+# No workers.dev URL. No route yet: the cron trigger runs without one; the manual
+# trigger and the capture endpoint need a hostname, to be confirmed by Paul, e.g.
+# routes = [{ pattern = "prices.tick-ticker.com", custom_domain = true }]
+workers_dev = false
+
+[triggers]
+# Monthly capture: every 10 minutes from 04:00 to 07:50 UTC on the 1st. Each firing
+# resumes the month's open run, so the run is spread over up to 24 invocations and
+# keeps the per-domain pace (one request at a time, at least 3 s apart).
+crons = ["*/10 4-7 1 * *"]
+
+[vars]
+# Public origin of this Worker, used by the bookmarklet and the capture page.
+PUBLIC_ORIGIN = "https://prices.tick-ticker.com"
+# Per invocation: outgoing page requests and wall-clock budget (milliseconds).
+MAX_REQUESTS_PER_INVOCATION = "40"
+INVOCATION_BUDGET_MS = "600000"
+# Minimum gap between two requests to the same domain (milliseconds).
+MIN_DELAY_MS = "3000"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "baromontres"
+database_id = "40793010-0c4d-4a80-a1af-963a50273fc5"
+migrations_dir = "../../migrations"
+
+[[r2_buckets]]
+binding = "EVIDENCE"
+bucket_name = "tick-ticker-price-evidence"
+
+[observability]
+enabled = true
