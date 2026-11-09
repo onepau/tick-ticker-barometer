@@ -265,3 +265,23 @@ Paul checked the Rolex and Panerai rows by hand in his own browser, as a person,
 - **Rolex:** prices on rolex.com match the retailer prices in the CSV for all three references (126610LN, 126000, 126234). rolex.com shows prices to a person in a browser (for example the Oyster Perpetual 36 page on the `fr-ch` locale), even though it returned 403 to the automated requests in round 1. The three Rolex rows are now `verified = TRUE`.
 - **Panerai:** the two references found at retailers (PAM01312 Luminor Marina 44mm, PAM00753 Radiomir 45mm) are **not listed on panerai.com**, which does show prices for the watches it lists (Paul's example: the PAM01707 Luminor Marina page, https://www.panerai.com/ch/en/collections/watch-collection/luminor/pam01707-luminor-marina.html). Both rows were removed from the CSV; Panerai now has no rows until Paul adds current references.
 - **Point for the blog:** a retailer listing is not proof that a reference is current. Two of two Panerai retailer finds were references the brand no longer shows.
+
+## 9. Round 4 (9 November 2026, unit 6)
+
+All requests used `tick-ticker-prices/1.0 (+https://tick-ticker.com)` (verified by me), from Paul's Mac, one at a time per domain, at least 3 s apart.
+
+- **Bell & Ross, one retry at one request per minute.** 13:07:39 UTC, `https://bellross.com/products/br-03-skeleton-steel`: HTTP 429, body `local_rate_limited`, `retry-after: 60`, `server: cloudflare` on the first request. The rule was one retry, so no second request was made. **Bell & Ross is dropped** from the tracker; it can come back only through a press-office price list or a crawl permission.
+- **Cartier and Breitling live pilot**, 13:08:50 to 13:08:57 UTC, through the unit 6 Worker code (`apps/prices/scripts/pilot-live.ts`): `robots.txt` for both domains (200), then CRWSSA0029 CH and US and AB0138211B1A1 CH and US (all 200). Six requests. All four prices equal the 6 November figures.
+- **Tax labelling** (read from the pages saved on 6 November, no new requests):
+
+| Brand       | CH                     | FR                      | UK                     | US                  | Where                                                                                       |
+| ----------- | ---------------------- | ----------------------- | ---------------------- | ------------------- | ------------------------------------------------------------------------------------------- |
+| Cartier     | "incl. VAT"            | "TVA incluse"           | "incl. VAT"            | none (empty label)  | `data-d-vat-i18` attribute, shown beside the price by script; US tax span empty             |
+| Breitling   | "VAT Incl."            | "TVA incluse"           | "VAT Incl."            | "Excl. Sales Tax"   | Server HTML beside the price                                                                |
+| Omega       | none beside the price  | not reached (CH only)   | not reached            | not reached         | Cart set to show subtotals including tax                                                    |
+| Longines    | none beside the price  | none beside the price   | none beside the price  | none                | Cart strings only: "(TVA incluse)", "(VAT included)"; US cart shows "Tax" on top            |
+| Tissot      | none                   | none                    | none                   | none                | Product page shows the price and "Add to cart" only                                        |
+| Oris        | none                   | none                    | none                   | none                | Product page shows the price and reference only                                            |
+| Grand Seiko | none                   | none                    | none                   | none                | Product page shows the price and collection only                                           |
+
+Where a page says nothing, the price is taken as the market's usual retail convention (`price_markets.tax_included`: included in CH, FR and UK, excluded in the US). The Worker stores whatever wording it finds in `price_sources.tax_label` and on each snapshot.

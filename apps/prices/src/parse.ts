@@ -25,12 +25,12 @@ const POR_RE =
 // Longest tokens first so "US$" wins over "$" and "SFr." over "Fr.".
 const CURRENCY_TOKENS: [RegExp, CurrencyCode][] = [
   [/US\$/g, "USD"],
-  [/\bUSD\b/g, "USD"],
-  [/\bCHF\b/g, "CHF"],
+  [/\bUSD(?![A-Za-z])/g, "USD"],
+  [/\bCHF(?![A-Za-z])/g, "CHF"],
   [/\bS?Fr\./g, "CHF"],
-  [/\bEUR\b/g, "EUR"],
+  [/\bEUR(?![A-Za-z])/g, "EUR"],
   [/€/g, "EUR"],
-  [/\bGBP\b/g, "GBP"],
+  [/\bGBP(?![A-Za-z])/g, "GBP"],
   [/£/g, "GBP"],
   [/\$/g, "USD"],
 ];

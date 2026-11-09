@@ -45,6 +45,13 @@ describe('parsePrice: formats seen on the pilot pages', () => {
     ['Price €11,000', 1_100_000, 'EUR'],
     ['9.900 €', 990_000, 'EUR'], // dot groups
     ['10.50 CHF', 1_050, 'CHF'], // dot decimal
+    ['GBP2,100.00', 210_000, 'GBP'], // Oris UK, no space
+    ['USD2,900.00', 290_000, 'USD'], // Oris US
+    ["CHF 2'450.00", 245_000, 'CHF'], // Oris CH
+    ['2 450,00 EUR', 245_000, 'EUR'], // Oris FR
+    ['695,00 CHF', 69_500, 'CHF'], // Tissot CH
+    ['EUR 7 000,00', 700_000, 'EUR'], // Grand Seiko FR
+    ['CHF 2’100.00', 210_000, 'CHF'], // Longines CH
   ])('%s', (text, minor, cur) => {
     expect(price(text)).toEqual({ amountMinor: minor, currency: cur });
   });
