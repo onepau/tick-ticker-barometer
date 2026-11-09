@@ -45,11 +45,19 @@ export interface TestDb {
   raw: DatabaseSync;
 }
 
-/** Fresh in-memory database with the price migration applied. */
-export function freshPriceDb(): TestDb {
+/** Migrations the price tables depend on: registry (0005–0006) and prices (0007+). */
+export const PRICE_MIGRATIONS = [
+  '0005_registry_entities.sql',
+  '0006_watch_references.sql',
+  '0007_price_schema.sql',
+  '0008_price_sources_manual.sql',
+];
+
+/** Fresh in-memory database with the registry and price migrations applied. */
+export function freshPriceDb(migrations: string[] = PRICE_MIGRATIONS): TestDb {
   const raw = new DatabaseSync(':memory:');
   raw.exec('PRAGMA foreign_keys = ON;');
-  raw.exec(migrationSql('0007_price_schema.sql'));
+  for (const m of migrations) raw.exec(migrationSql(m));
   const d1 = {
     prepare: (sql: string) => new Stmt(raw, sql),
     exec: async (sql: string) => raw.exec(sql),
