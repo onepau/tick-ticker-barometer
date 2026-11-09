@@ -113,6 +113,8 @@ describe('adapterFor', () => {
 
 // Unit 7: Swatch Group storefronts. Expected figures match the 6 November prices
 // in docs/plans/u5-reference-candidates.csv; pages fetched again on 9 November.
+import { grandSeiko } from '../src/adapters/grand-seiko.ts';
+import { oris } from '../src/adapters/oris.ts';
 import { longines } from '../src/adapters/longines.ts';
 import { omega } from '../src/adapters/omega.ts';
 import { rado } from '../src/adapters/rado.ts';
@@ -175,5 +177,40 @@ describe('Omega (CH only)', () => {
   });
   it('refuses an addOn reference (page is for another watch)', () => {
     expect(run(omega, 'omega-31030425001001-ch.html', '310.30.42.50.04.001', 'CH').status).toBe('error');
+  });
+});
+
+describe('Oris', () => {
+  const REF = '01 733 7707 4053-07 8 20 18';
+  it('prices CH and US from the stage block, not the strap carousel', () => {
+    expect(run(oris, 'oris-0173377074053-ch.html', REF, 'CH')).toMatchObject({ status: 'ok', amountMinor: 245_000, priceText: "CHF 2'450.00", taxLabel: null, refSeen: REF });
+    expect(run(oris, 'oris-0173377074053-us.html', REF, 'US')).toMatchObject({ status: 'ok', amountMinor: 290_000 });
+  });
+  it('4064: price on request in CH (not available online), 2,400 USD in the US', () => {
+    const por = run(oris, 'oris-0173377074064-ch.html', '01 733 7707 4064-07 8 20 18', 'CH');
+    expect(por).toMatchObject({ status: 'price_on_request', amountMinor: null });
+    expect(por.priceText).toMatch(/nicht verfügbar/);
+    expect(run(oris, 'oris-0173377074064-us.html', '01 733 7707 4064-07 8 20 18', 'US')).toMatchObject({ status: 'ok', amountMinor: 240_000 });
+  });
+  it('refuses another reference and the wrong currency', () => {
+    expect(run(oris, 'oris-0173377074053-ch.html', '01 733 7707 4064-07 8 20 18', 'CH').status).toBe('error');
+    expect(run(oris, 'oris-0173377074053-us.html', REF, 'CH').message).toMatch(/currency USD/);
+  });
+});
+
+describe('Grand Seiko', () => {
+  it('SBGX363 CH and US', () => {
+    expect(run(grandSeiko, 'gs-sbgx363-ch.html', 'SBGX363', 'CH')).toMatchObject({ status: 'ok', amountMinor: 370_000, taxLabel: null, refSeen: 'SBGX363' });
+    expect(run(grandSeiko, 'gs-sbgx363-us.html', 'SBGX363', 'US')).toMatchObject({ status: 'ok', amountMinor: 360_000 });
+  });
+  it('SBGD201: five-figure CH price; boutique-only US page is price on request', () => {
+    expect(run(grandSeiko, 'gs-sbgd201-ch.html', 'SBGD201', 'CH')).toMatchObject({ status: 'ok', amountMinor: 6_310_000 });
+    expect(run(grandSeiko, 'gs-sbgd201-us.html', 'SBGD201', 'US')).toMatchObject({ status: 'price_on_request', amountMinor: null });
+  });
+  it('refuses another reference, the wrong currency and a page without a header', () => {
+    expect(run(grandSeiko, 'gs-sbgx363-ch.html', 'SBGX365', 'CH').status).toBe('error');
+    expect(run(grandSeiko, 'gs-sbgx363-us.html', 'SBGX363', 'CH').message).toMatch(/currency USD/);
+    const r = grandSeiko.parse('<html><body>maintenance</body></html>', { refCode: 'SBGX363', brandSlug: 'grand-seiko', url: 'x' }, 'CH', 'CHF');
+    expect(r.status).toBe('error');
   });
 });
