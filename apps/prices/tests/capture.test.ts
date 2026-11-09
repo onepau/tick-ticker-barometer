@@ -91,6 +91,23 @@ describe('HTTP', () => {
     expect(await ok.json()).toMatchObject({ ok: true, reference: 'rolex/126610ln' });
   });
 
+  it('serves the validation report only with the run token', async () => {
+    const app = createApp();
+    const { t, env: e } = env();
+    const get = (path: string, token?: string) =>
+      new Request(`https://prices.example.com${path}`, { headers: token ? { authorization: `Bearer ${token}` } : {} });
+    expect((await app.fetch(get('/api/report'), e)).status).toBe(401);
+    expect((await app.fetch(get('/api/report', TOKEN), e)).status).toBe(401); // the capture token is not the run token
+    expect((await app.fetch(get('/api/report?run=abc', 'run-token-for-tests-0123456789'), e)).status).toBe(400);
+    const empty = await app.fetch(get('/api/report', 'run-token-for-tests-0123456789'), e);
+    expect(empty.status).toBe(200);
+    expect(await empty.json()).toMatchObject({ runs: [], report: null, open_review_flags: [] });
+    t.raw.exec(`INSERT INTO capture_runs (id, started_at, "trigger") VALUES (7, '2026-12-15T04:00:00Z', 'cron')`);
+    t.raw.exec(`INSERT INTO run_reports (run_id, created_at, report) VALUES (7, '2026-12-15T04:05:00Z', '{"run_id":7,"coverage":{"share":0.9}}')`);
+    const res = await app.fetch(get('/api/report', 'run-token-for-tests-0123456789'), e);
+    expect(await res.json()).toMatchObject({ report: { run_id: 7, coverage: { share: 0.9 } }, runs: [{ id: 7 }] });
+  });
+
   it('refuses everything when the secret is unset or short', () => {
     expect(tokenOk('Bearer x', undefined)).toBe(false);
     expect(tokenOk('Bearer short', 'short')).toBe(false);

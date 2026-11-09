@@ -36,13 +36,16 @@ describe('CSV import', () => {
     ]);
   });
 
-  it('gives pilot sources their adapter and marks the rest as pending', () => {
+  it('gives every source its adapter (units 6 and 7), none pending', () => {
     const t = seededDb();
     const src = t.raw.prepare(`SELECT source, adapter_key, notes FROM price_sources WHERE market_code = 'CH' ORDER BY source`).all() as {
       source: string; adapter_key: string; notes: string | null;
     }[];
     expect(src.find((s) => s.source === 'brand:www.cartier.com')).toMatchObject({ adapter_key: 'cartier', notes: null });
     expect(src.find((s) => s.source === 'retailer:www.bucherer.com')).toMatchObject({ adapter_key: 'bucherer' });
-    expect(src.find((s) => s.source.includes('omega'))?.notes).toMatch(/pending/);
+    for (const [host, key] of [['longines', 'longines'], ['tissotwatches', 'tissot'], ['rado', 'rado'], ['omegawatches', 'omega'], ['oris', 'oris'], ['grand-seiko', 'grand-seiko']]) {
+      expect(src.find((s) => s.source.includes(host))).toMatchObject({ adapter_key: key, notes: null });
+    }
+    expect(src.filter((s) => s.notes?.includes('pending'))).toEqual([]);
   });
 });

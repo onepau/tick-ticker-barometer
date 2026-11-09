@@ -51,6 +51,7 @@ export const PRICE_MIGRATIONS = [
   '0006_watch_references.sql',
   '0007_price_schema.sql',
   '0008_price_sources_manual.sql',
+  '0009_run_reports.sql',
 ];
 
 /** Fresh in-memory database with the registry and price migrations applied. */

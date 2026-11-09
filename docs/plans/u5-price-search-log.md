@@ -285,3 +285,13 @@ All requests used `tick-ticker-prices/1.0 (+https://tick-ticker.com)` (verified 
 | Grand Seiko | none                   | none                    | none                   | none                | Product page shows the price and collection only                                           |
 
 Where a page says nothing, the price is taken as the market's usual retail convention (`price_markets.tax_included`: included in CH, FR and UK, excluded in the US). The Worker stores whatever wording it finds in `price_sources.tax_label` and on each snapshot.
+
+## 10. Round 5 (9 November 2026, unit 7)
+
+No block, 403, reset or repeated 429 met on any of the six brands. All requests used `tick-ticker-barometer`'s fetcher with `tick-ticker-prices/1.0 (+https://tick-ticker.com)`, `robots.txt` read and obeyed first, at least 3 s per domain, from Paul's Mac (verified by me, from the fetcher's own request log).
+
+- **Fixture pages**, about 13:19 to 13:25 UTC, through `apps/prices/scripts/save-fixture.ts`: Longines `L2.286.4.52.6` in CH, FR, UK and US; Tissot `T1504101104100` CH and US; Rado `R32505313` CH and US; Omega `31030425001001` CH; Oris `4053` and `4064` CH and US; Grand Seiko `SBGX363` CH and US and `SBGD201` CH and US. All HTTP 200. 24 page requests plus `robots.txt` for six domains.
+- **Live sample**, 13:27 UTC, `apps/prices/scripts/sample-live.ts`: 12 pages (two per brand) and the `robots.txt` files, 18 requests, all 200. Every price equals the 6 November figure. Listed in `docs/plans/u7-sample-prices.md`.
+- **Markup found**: Longines JSON-LD plus `span[data-qa-id=product-price]`; Tissot (Salesforce) JSON-LD plus `span.ti-price-sales`; Rado and Omega on Magento (Rado microdata only, Omega JSON-LD with the main offer's `sku` on the offer and other variants in `addOn`); Oris Nuxt page with microdata in `div.stage-price` and `p.stage-button-info` for "not available online"; Grand Seiko plain HTML (`p._price`, no structured data).
+- **Price on request**: Oris models "not available online" (message in the page's language) and Grand Seiko pages with a header but no `p._price` (for example SBGD201 in the US).
+- **Tax wording**: unchanged from section 9; none of the six prints any beside the price on the product page.

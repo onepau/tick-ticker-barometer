@@ -4334,7 +4334,7 @@ SELECT r.id, 'UK', 'retailer:www.watches-of-switzerland.co.uk', 'https://www.wat
 ON CONFLICT(reference_id, market_code, source) DO UPDATE SET url = excluded.url, active = 1,
   updated_at = datetime('now');
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'CH', 'brand:www.omegawatches.com', 'fetch', 'omega', 'adapter pending (unit 7)'
+SELECT id, 'CH', 'brand:www.omegawatches.com', 'fetch', 'omega', NULL
   FROM brands WHERE slug = 'omega'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
@@ -4359,42 +4359,42 @@ SELECT id, 'US', 'brand:www.cartier.com', 'fetch', 'cartier', NULL
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'CH', 'brand:www.longines.com', 'fetch', 'longines', 'adapter pending (unit 7)'
+SELECT id, 'CH', 'brand:www.longines.com', 'fetch', 'longines', NULL
   FROM brands WHERE slug = 'longines'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'FR', 'brand:www.longines.com', 'fetch', 'longines', 'adapter pending (unit 7)'
+SELECT id, 'FR', 'brand:www.longines.com', 'fetch', 'longines', NULL
   FROM brands WHERE slug = 'longines'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'UK', 'brand:www.longines.com', 'fetch', 'longines', 'adapter pending (unit 7)'
+SELECT id, 'UK', 'brand:www.longines.com', 'fetch', 'longines', NULL
   FROM brands WHERE slug = 'longines'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'US', 'brand:www.longines.com', 'fetch', 'longines', 'adapter pending (unit 7)'
+SELECT id, 'US', 'brand:www.longines.com', 'fetch', 'longines', NULL
   FROM brands WHERE slug = 'longines'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'CH', 'brand:www.tissotwatches.com', 'fetch', 'tissot', 'adapter pending (unit 7)'
+SELECT id, 'CH', 'brand:www.tissotwatches.com', 'fetch', 'tissot', NULL
   FROM brands WHERE slug = 'tissot'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'FR', 'brand:www.tissotwatches.com', 'fetch', 'tissot', 'adapter pending (unit 7)'
+SELECT id, 'FR', 'brand:www.tissotwatches.com', 'fetch', 'tissot', NULL
   FROM brands WHERE slug = 'tissot'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'UK', 'brand:www.tissotwatches.com', 'fetch', 'tissot', 'adapter pending (unit 7)'
+SELECT id, 'UK', 'brand:www.tissotwatches.com', 'fetch', 'tissot', NULL
   FROM brands WHERE slug = 'tissot'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'US', 'brand:www.tissotwatches.com', 'fetch', 'tissot', 'adapter pending (unit 7)'
+SELECT id, 'US', 'brand:www.tissotwatches.com', 'fetch', 'tissot', NULL
   FROM brands WHERE slug = 'tissot'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
@@ -4419,62 +4419,62 @@ SELECT id, 'US', 'brand:www.breitling.com', 'fetch', 'breitling', NULL
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'UK', 'brand:www.rado.com', 'fetch', 'rado', 'adapter pending (unit 7)'
+SELECT id, 'UK', 'brand:www.rado.com', 'fetch', 'rado', NULL
   FROM brands WHERE slug = 'rado'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'US', 'brand:www.rado.com', 'fetch', 'rado', 'adapter pending (unit 7)'
+SELECT id, 'US', 'brand:www.rado.com', 'fetch', 'rado', NULL
   FROM brands WHERE slug = 'rado'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'CH', 'brand:www.rado.com', 'fetch', 'rado', 'adapter pending (unit 7)'
+SELECT id, 'CH', 'brand:www.rado.com', 'fetch', 'rado', NULL
   FROM brands WHERE slug = 'rado'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'FR', 'brand:www.rado.com', 'fetch', 'rado', 'adapter pending (unit 7)'
+SELECT id, 'FR', 'brand:www.rado.com', 'fetch', 'rado', NULL
   FROM brands WHERE slug = 'rado'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'CH', 'brand:www.oris.ch', 'fetch', 'oris', 'adapter pending (unit 7)'
+SELECT id, 'CH', 'brand:www.oris.ch', 'fetch', 'oris', NULL
   FROM brands WHERE slug = 'oris'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'FR', 'brand:www.oris.ch', 'fetch', 'oris', 'adapter pending (unit 7)'
+SELECT id, 'FR', 'brand:www.oris.ch', 'fetch', 'oris', NULL
   FROM brands WHERE slug = 'oris'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'UK', 'brand:www.oris.ch', 'fetch', 'oris', 'adapter pending (unit 7)'
+SELECT id, 'UK', 'brand:www.oris.ch', 'fetch', 'oris', NULL
   FROM brands WHERE slug = 'oris'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'US', 'brand:www.oris.ch', 'fetch', 'oris', 'adapter pending (unit 7)'
+SELECT id, 'US', 'brand:www.oris.ch', 'fetch', 'oris', NULL
   FROM brands WHERE slug = 'oris'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'CH', 'brand:www.grand-seiko.com', 'fetch', 'grand-seiko', 'adapter pending (unit 7)'
+SELECT id, 'CH', 'brand:www.grand-seiko.com', 'fetch', 'grand-seiko', NULL
   FROM brands WHERE slug = 'grand-seiko'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'FR', 'brand:www.grand-seiko.com', 'fetch', 'grand-seiko', 'adapter pending (unit 7)'
+SELECT id, 'FR', 'brand:www.grand-seiko.com', 'fetch', 'grand-seiko', NULL
   FROM brands WHERE slug = 'grand-seiko'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'UK', 'brand:www.grand-seiko.com', 'fetch', 'grand-seiko', 'adapter pending (unit 7)'
+SELECT id, 'UK', 'brand:www.grand-seiko.com', 'fetch', 'grand-seiko', NULL
   FROM brands WHERE slug = 'grand-seiko'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
 INSERT INTO price_sources (brand_id, market_code, source, method, adapter_key, notes)
-SELECT id, 'US', 'brand:www.grand-seiko.com', 'fetch', 'grand-seiko', 'adapter pending (unit 7)'
+SELECT id, 'US', 'brand:www.grand-seiko.com', 'fetch', 'grand-seiko', NULL
   FROM brands WHERE slug = 'grand-seiko'
 ON CONFLICT(brand_id, market_code, source, method) DO UPDATE SET adapter_key = excluded.adapter_key,
   notes = COALESCE(excluded.notes, notes);
