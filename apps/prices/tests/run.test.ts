@@ -89,6 +89,8 @@ describe('runCapture end to end (fixtures, fake network and R2)', () => {
 
   it('leaves brands without an adapter out of the run', async () => {
     const t = seededDb();
+    // A page on a host no adapter reads (and no explicit adapter key) is left out.
+    t.raw.exec(`UPDATE reference_price_urls SET url = replace(url, 'www.omegawatches.com', 'unknown.example.test'); UPDATE price_sources SET adapter_key = 'none' WHERE adapter_key IS NOT NULL`);
     const net = fixtureNet({});
     const report = await runCapture(t.d1, fakeR2().bucket, { trigger: 'manual', filter: { brandSlugs: ['omega'] }, fetcher: net.opts });
     expect(report).toMatchObject({ attempted: 0, remaining: 0 });

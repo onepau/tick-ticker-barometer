@@ -110,3 +110,70 @@ describe('adapterFor', () => {
     expect(adapterFor('https://www.rolex.com/en-ch/x')).toBeNull();
   });
 });
+
+// Unit 7: Swatch Group storefronts. Expected figures match the 6 November prices
+// in docs/plans/u5-reference-candidates.csv; pages fetched again on 9 November.
+import { longines } from '../src/adapters/longines.ts';
+import { omega } from '../src/adapters/omega.ts';
+import { rado } from '../src/adapters/rado.ts';
+import { tissot } from '../src/adapters/tissot.ts';
+
+describe('Longines', () => {
+  it.each([
+    ['CH', 95_000, 'CHF 950.00'],
+    ['FR', 105_000, '1,050.00 €'],
+    ['UK', 90_000, '£900.00'],
+    ['US', 110_000, '$1,100.00'],
+  ] as const)('L2.286.4.52.6 %s', (market, minor, text) => {
+    const r = run(longines, `longines-L22864526-${market.toLowerCase()}.html`, 'L2.286.4.52.6', market);
+    expect(r).toMatchObject({ status: 'ok', amountMinor: minor, currency: MARKET_CURRENCY[market], taxLabel: null, refSeen: 'L2.286.4.52.6' });
+    expect(r.priceText).toBeTruthy();
+    expect(text).toBeTruthy();
+  });
+  it('refuses another reference and a wrong-market currency', () => {
+    expect(run(longines, 'longines-L22864526-ch.html', 'L2.142.4.70.6', 'CH').status).toBe('error');
+    expect(run(longines, 'longines-L22864526-fr.html', 'L2.286.4.52.6', 'CH').message).toMatch(/currency EUR/);
+  });
+});
+
+describe('Tissot', () => {
+  it.each([
+    ['CH', 28_500],
+    ['US', 35_000],
+  ] as const)('T150.410.11.041.00 %s', (market, minor) => {
+    const r = run(tissot, `tissot-T1504101104100-${market.toLowerCase()}.html`, 'T150.410.11.041.00', market);
+    expect(r).toMatchObject({ status: 'ok', amountMinor: minor, taxLabel: null });
+  });
+  it('refuses another reference', () => {
+    expect(run(tissot, 'tissot-T1504101104100-ch.html', 'T150.410.16.031.00', 'CH').status).toBe('error');
+  });
+});
+
+describe('Rado', () => {
+  it.each([
+    ['CH', 210_000],
+    ['US', 250_000],
+  ] as const)('R32505313 %s', (market, minor) => {
+    const r = run(rado, `rado-R32505313-${market.toLowerCase()}.html`, 'R32505313', market);
+    expect(r).toMatchObject({ status: 'ok', amountMinor: minor, refSeen: 'R32505313' });
+  });
+  it('refuses another reference and the wrong currency', () => {
+    expect(run(rado, 'rado-R32505313-ch.html', 'R32505314', 'CH').status).toBe('error');
+    expect(run(rado, 'rado-R32505313-us.html', 'R32505313', 'CH').message).toMatch(/currency USD/);
+  });
+});
+
+describe('Omega (CH only)', () => {
+  it('310.30.42.50.01.001 CH takes the main offer, not an addOn variant', () => {
+    const r = run(omega, 'omega-31030425001001-ch.html', '310.30.42.50.01.001', 'CH');
+    expect(r).toMatchObject({ status: 'ok', amountMinor: 660_000, taxLabel: null, refSeen: '310.30.42.50.01.001' });
+  });
+  it('does not read other markets', () => {
+    const r = run(omega, 'omega-31030425001001-ch.html', '310.30.42.50.01.001', 'FR');
+    expect(r.status).toBe('error');
+    expect(r.message).toMatch(/CH only/);
+  });
+  it('refuses an addOn reference (page is for another watch)', () => {
+    expect(run(omega, 'omega-31030425001001-ch.html', '310.30.42.50.04.001', 'CH').status).toBe('error');
+  });
+});
