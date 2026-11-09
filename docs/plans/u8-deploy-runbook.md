@@ -112,9 +112,23 @@ Go to Zero Trust → **Access → Applications → Add → Self-hosted**:
 
 Leave `/health` open. The `/api/*` endpoints are already protected by the tokens. If you put them behind Access as well, curl calls will need a service token.
 
+**Save the policy and the application**, then check:
+
+```bash
+curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" https://prices.tick-ticker.com/capture
+```
+
+Expect `302` with a redirect to `…cloudflareaccess.com/…/login/prices.tick-ticker.com…`. A `200` means Access isn't applied yet.
+
 ## 11. Health checks
 
-First make the run token available to the commands below, without saving it in your shell history: `read -s RUN_TOKEN`, then paste the token and press Enter.
+First make the run token available to the commands below, without saving it in your shell history (zsh syntax; macOS's default shell). Paste the token at the prompt and press Enter; it should report length 48:
+
+```bash
+read -rs "RUN_TOKEN?Run token: "; echo; echo "token length: ${#RUN_TOKEN}"
+```
+
+Run everything below in the **same terminal tab**: the token only exists in that shell.
 
 ```bash
 curl -sf https://prices.tick-ticker.com/health
@@ -123,15 +137,15 @@ curl -sf https://prices.tick-ticker.com/health
 Expect `{"ok":true,"worker":"tick-ticker-prices"}`.
 
 ```bash
-curl -sf -H "Authorization: Bearer $RUN_TOKEN" https://prices.tick-ticker.com/api/report
+curl -si -H "Authorization: Bearer $RUN_TOKEN" https://prices.tick-ticker.com/api/report | head -20
 ```
 
-Expect 200 with JSON. On a fresh deploy the run list is empty.
+Expect `HTTP/2 200` and JSON. On a fresh deploy the run list is empty. `HTTP/2 401` means the token doesn't match the `RUN_TOKEN` secret from step 9: set it again.
 
 Small live run (2 pages, Cartier CH):
 
 ```bash
-curl -sf -X POST -H "Authorization: Bearer $RUN_TOKEN" "https://prices.tick-ticker.com/api/run?brands=cartier&markets=CH&limit=2"
+curl -si -X POST -H "Authorization: Bearer $RUN_TOKEN" "https://prices.tick-ticker.com/api/run?brands=cartier&markets=CH&limit=2"
 ```
 
 Then repeat the `/api/report` call. Expect a run with 2 snapshots with status `ok`, each with an evidence key under `runs/…`. Compare the two prices with the CSV.
