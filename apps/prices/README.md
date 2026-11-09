@@ -6,7 +6,7 @@ Captures official list prices for the tracked references in four markets (CH, FR
 
 | Source                                                                                     | How                                                      | Stored as                                          |
 | ------------------------------------------------------------------------------------------ | -------------------------------------------------------- | -------------------------------------------------- |
-| Brand site that allows it (Cartier, Breitling; more in unit 7)                             | Monthly cron fetches the product page with plain `fetch` | `method = 'fetch'`, `source = 'brand:<domain>'`    |
+| Brand site that allows it (Cartier, Breitling, Longines, Tissot, Rado, Omega CH, Oris, Grand Seiko)                            | Monthly cron fetches the product page with plain `fetch` | `method = 'fetch'`, `source = 'brand:<domain>'`    |
 | Authorised retailer (Bucherer CH, FR, US; Watches of Switzerland UK) for Rolex and Panerai | Same cron                                                | `method = 'fetch'`, `source = 'retailer:<domain>'` |
 | Rolex and Panerai brand sites                                                              | Paul's bookmarklet, on a page he opened himself          | `method = 'manual'`, `source = 'brand:<domain>'`   |
 
@@ -26,7 +26,7 @@ Evidence goes to the R2 bucket `tick-ticker-price-evidence` under `runs/<run>/<b
 
 Cron `*/10 4-7 1 * *`: every 10 minutes from 04:00 to 07:50 UTC on the 1st of each month. Each invocation makes at most `MAX_REQUESTS_PER_INVOCATION` requests (40) within `INVOCATION_BUDGET_MS` (10 minutes), then the next one resumes the month's open run, skipping pages already captured. Up to 24 invocations a month, about 960 requests: enough for 561 pages plus `robots.txt`. A run left unfinished is closed when the next month starts.
 
-Pages whose brand has no adapter yet (`price_sources.notes = 'adapter pending (unit 7)'`) are left out.
+Pages whose host has no adapter are left out of a run (`ADAPTER_BY_HOST` in `scripts/references-sql.ts` marks them `adapter pending` when the seed is built). All eight sources now have one; Bell & Ross and Montblanc are out (blocked), and Rolex, Tudor and other blocked brands are not fetched.
 
 ## Endpoints
 
@@ -34,7 +34,7 @@ Pages whose brand has no adapter yet (`price_sources.notes = 'adapter pending (u
 | ---------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `GET /health`          | none                        | Liveness                                                                                                    |
 | `POST /api/run`        | `Bearer RUN_TOKEN`          | Ad hoc run. Query: `brands=cartier,breitling`, `markets=CH,US`, `refs=<ids>`, `limit` (default 10, max 200) |
-| `GET /api/report`      | `Bearer RUN_TOKEN`          | Last 10 runs and retailer prices without a brand capture                                                    |
+| `GET /api/report`      | `Bearer RUN_TOKEN`          | Last 10 runs, the validation report of a run (`?run=ID`, default the latest), snapshots held for review, retailer prices without a brand capture |
 | `GET /capture`         | none (put it behind Access) | Capture page with the bookmarklet                                                                           |
 | `GET /bookmarklet.txt` | none                        | The bookmarklet as text                                                                                     |
 | `POST /api/capture`    | `Bearer CAPTURE_TOKEN`      | Store a manual capture                                                                                      |
@@ -77,11 +77,51 @@ node apps/prices/scripts/pilot-live.ts               # 4 live pages + 2 robots.t
 
 The import reads `docs/plans/u5-reference-candidates.csv` (161 references, 561 product URLs, 33 sources) and upserts, so it can be re-run. Local only: do not run the seed against the remote database before Paul says so.
 
-## Adding a brand (unit 7)
+## Adapters
 
-1. Save one product page per market as a trimmed fixture in `tests/fixtures/` and write `src/adapters/<brand>.ts` with a `parse` that returns `status`, `amountMinor`, `priceText`, `taxLabel`, `refSeen` and the evidence parts. Check the reference and the currency; cross-check visible price against product data where both exist.
-2. Register it in `src/adapters/index.ts` and in `ADAPTER_BY_HOST` in `scripts/references-sql.ts`, re-run the import.
+One file per source in `src/adapters/`; each keeps the quirks of its site in its header comment (markup, robots.txt rules, tax wording).
+
+| Source      | Adapter file          | Markets         | Where the price comes from                                                              | Price on request                                      |
+| ----------- | --------------------- | --------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Cartier     | `cartier.ts`          | CH FR UK US     | JSON-LD offer, visible price, tax attribute                                             | "price on request" text                               |
+| Breitling   | `breitling.ts`        | CH FR UK US     | JSON-LD offer, visible price, tax label                                                 | visible text                                          |
+| Longines    | `longines.ts`         | CH FR UK US     | JSON-LD offer, `span[data-qa-id=product-price]`                                         | none seen                                             |
+| Tissot      | `tissot.ts`           | CH FR UK US     | JSON-LD offer, `span.ti-price-sales`                                                    | none seen                                             |
+| Rado        | `rado.ts`             | CH FR UK US     | microdata `meta[itemprop=price]`, `span.price` (no JSON-LD)                              | none seen                                             |
+| Omega       | `omega.ts`            | **CH only**     | JSON-LD main offer (other variants in `addOn` ignored), `span.price`                    | none seen                                             |
+| Oris        | `oris.ts`             | CH FR UK US     | microdata in `div.stage-price` (strap options in the carousel are ignored)              | "not available online" message, no price block        |
+| Grand Seiko | `grand-seiko.ts`      | CH FR UK US     | `p._price` (no structured data; reference and currency checked)                         | header and collection but no `p._price`               |
+| Bucherer, Watches of Switzerland UK | `bucherer.ts`, `watches-of-switzerland.ts` | retailers for Rolex and Panerai | see the file headers | n/a |
+
+Longines, Tissot, Rado and Omega share `adapters/storefront.ts`: it finds the offer for the reference, checks the reference and the currency, reads the amount from the structured data, refuses a page whose visible price disagrees, and keeps the evidence. A brand file only names its anchors. Oris uses it too, and Grand Seiko, which has nothing structured to cross-check, has its own reader.
+
+Omega is tracked for CH only (Paul's decision): its FR, UK and US paths redirect to the Swiss site, which is not bypassed, and the adapter refuses any other market.
+
+Tax wording: Cartier, Breitling and the retailers print it; Longines, Tissot, Rado, Omega, Oris and Grand Seiko print none beside the price on the product page, so `tax_label` stays empty and the market convention (`price_markets.tax_included`) applies. See `docs/plans/u5-price-search-log.md`, section 9.
+
+## Validation report
+
+When a run finishes (a manual run at once, a cron run when nothing is left), the Worker builds a report, stores it in `run_reports` and serves it on `GET /api/report` (`Bearer RUN_TOKEN`; `?run=ID` for an older run).
+
+- **Coverage**: reference × market cells of the run's scope with an `ok` snapshot, as a share, overall and by brand and market, with the other statuses counted (`price_on_request`, `unavailable`, `error`, `not_attempted`).
+- **Changes**: each cell whose `ok` price differs from its previous `ok` price (same cell, same source), with the percentage change, largest first.
+- **Outliers**, held for manual review and not published meanwhile:
+  - `change_over_15`: the price moved by more than 15% either way (the exact ratio is compared, not the rounded figure);
+  - `currency_mismatch`: the page showed another currency than the market's (the adapter refused it), the snapshot is not in the market's currency, or the cell switched currency;
+  - `retailer_unconfirmed`: a retailer price for a reference with no `ok` manual capture from the brand's own site.
+
+Each outlier gets a row in `price_review_flags`. Snapshots stay append-only; the view `price_snapshots_countable` (the one to read for anything published) skips a snapshot while its flag is unresolved. To release a snapshot after checking it, set the flag's `resolved_at` and `resolution`:
+
+```bash
+wrangler d1 execute baromontres --remote --command "UPDATE price_review_flags SET resolved_at = datetime('now'), resolution = 'checked on the brand site' WHERE id = 12"
+```
+
+## Adding a brand
+
+1. Save one product page per market as a trimmed fixture in `tests/fixtures/` (`scripts/save-fixture.ts <dir> name=url ...` fetches through the polite fetcher) and write `src/adapters/<brand>.ts` with a `parse` that returns `status`, `amountMinor`, `priceText`, `taxLabel`, `refSeen` and the evidence parts. Check the reference and the currency; cross-check visible price against product data where both exist; handle price on request.
+2. Register it in `src/adapters/index.ts` and in `ADAPTER_BY_HOST` in `scripts/references-sql.ts`, then `pnpm seed:build`.
 3. Add fixture tests to `tests/adapters.test.ts`.
+4. `node scripts/sample-live.ts` fetches a few pages live (nothing is written) for a spot check against the site.
 
 ## Before the first deploy (Paul)
 

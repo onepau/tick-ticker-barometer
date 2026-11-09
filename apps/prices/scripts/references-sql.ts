@@ -8,10 +8,16 @@ import { readCsvObjects } from "../../registry/scripts/csv.ts";
 /** Hosts that are authorised retailers rather than the brand's own site. */
 export const RETAILER_HOSTS = new Set(["www.bucherer.com", "www.watches-of-switzerland.co.uk"]);
 
-/** Adapter per host (unit 6). Hosts without one get the brand slug as a placeholder key. */
+/** Adapter per host (units 6 and 7). Hosts without one get the brand slug as a placeholder key. */
 export const ADAPTER_BY_HOST: Record<string, string> = {
   "www.cartier.com": "cartier",
   "www.breitling.com": "breitling",
+  "www.longines.com": "longines",
+  "www.tissotwatches.com": "tissot",
+  "www.rado.com": "rado",
+  "www.omegawatches.com": "omega",
+  "www.oris.ch": "oris",
+  "www.grand-seiko.com": "grand-seiko",
   "www.bucherer.com": "bucherer",
   "www.watches-of-switzerland.co.uk": "watches-of-switzerland-uk",
 };
