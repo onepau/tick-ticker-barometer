@@ -127,6 +127,6 @@ wrangler d1 execute baromontres --remote --command "UPDATE price_review_flags SE
 
 - Create the R2 bucket `tick-ticker-price-evidence`.
 - `wrangler secret put RUN_TOKEN` and `wrangler secret put CAPTURE_TOKEN` (16+ random characters each).
-- Choose the hostname (`PUBLIC_ORIGIN`, now `https://prices.tick-ticker.com`), add the route, and put `/capture` and `/api/*` behind Cloudflare Access if wanted (`/api/capture` already needs the token).
+- Hostname: `prices.tick-ticker.com` (route set in `wrangler.toml`). Put `/capture` and `/api/*` behind Cloudflare Access if wanted (`/api/capture` already needs the token).
 - Apply migration 0008 remotely after 0005–0007 (see the registry README about `d1_migrations` history), then the registry and reference seeds.
 - Plan tier (still unconfirmed): each invocation makes up to 40 outgoing page requests plus D1 and R2 calls, and waits between requests for up to 10 minutes of wall-clock time. That fits the Workers Paid limits as I understand them (1,000 subrequests; cron invocations up to 15 minutes). On the Free plan (50 subrequests) check whether D1 and R2 binding calls count towards the limit, and lower `MAX_REQUESTS_PER_INVOCATION` and `INVOCATION_BUDGET_MS` if needed.

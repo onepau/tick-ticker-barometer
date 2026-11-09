@@ -4,16 +4,16 @@
 # Not deployed. Needs, before the first deploy (see README.md):
 #   - the R2 bucket below created,
 #   - the secrets RUN_TOKEN and CAPTURE_TOKEN set (wrangler secret put …),
-#   - a hostname for the capture page (route below), ideally behind Cloudflare Access.
+#   - Cloudflare Access on prices.tick-ticker.com/capture.
 name = "tick-ticker-prices"
 main = "src/index.ts"
 compatibility_date = "2024-11-12"
 compatibility_flags = ["nodejs_compat"]
 
-# No workers.dev URL. No route yet: the cron trigger runs without one; the manual
-# trigger and the capture endpoint need a hostname, to be confirmed by Paul, e.g.
-# routes = [{ pattern = "prices.tick-ticker.com", custom_domain = true }]
+# No workers.dev URL. Custom domain chosen by Paul on 9 November 2026; put /capture
+# behind Cloudflare Access (see docs/plans/u8-deploy-runbook.md).
 workers_dev = false
+routes = [{ pattern = "prices.tick-ticker.com", custom_domain = true }]
 
 [triggers]
 # Monthly capture: every 10 minutes from 04:00 to 07:50 UTC on the 1st. Each firing
