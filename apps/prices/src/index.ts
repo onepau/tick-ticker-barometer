@@ -6,11 +6,15 @@ const app = createApp();
 
 export default {
   fetch: app.fetch,
-  async scheduled(_event: ScheduledController, env: PricesEnv, ctx: ExecutionContext) {
+  async scheduled(event: ScheduledController, env: PricesEnv, ctx: ExecutionContext) {
     const budget = numVar(env.INVOCATION_BUDGET_MS, 600_000);
+    const maxHosts = env.MAX_HOSTS_PER_INVOCATION ? numVar(env.MAX_HOSTS_PER_INVOCATION, 1) : undefined;
     ctx.waitUntil(
       runCapture(env.DB, env.EVIDENCE, {
         trigger: "cron",
+        maxHosts,
+        // One step per 10-minute firing, so each firing starts at the next domain.
+        hostOffset: Math.floor(event.scheduledTime / 600_000),
         fetcher: {
           minDelayMs: numVar(env.MIN_DELAY_MS, 3000),
           maxRequests: numVar(env.MAX_REQUESTS_PER_INVOCATION, 40),

@@ -43,7 +43,7 @@ describe('CSV import', () => {
     }[];
     expect(src.find((s) => s.source === 'brand:www.cartier.com')).toMatchObject({ adapter_key: 'cartier', notes: null });
     expect(src.find((s) => s.source === 'retailer:www.bucherer.com')).toMatchObject({ adapter_key: 'bucherer' });
-    for (const [host, key] of [['longines', 'longines'], ['tissotwatches', 'tissot'], ['rado', 'rado'], ['omegawatches', 'omega'], ['oris', 'oris'], ['grand-seiko', 'grand-seiko']]) {
+    for (const [host, key] of <[string, string][]>[['longines', 'longines'], ['tissotwatches', 'tissot'], ['rado', 'rado'], ['omegawatches', 'omega'], ['oris', 'oris'], ['grand-seiko', 'grand-seiko']]) {
       expect(src.find((s) => s.source.includes(host))).toMatchObject({ adapter_key: key, notes: null });
     }
     expect(src.filter((s) => s.notes?.includes('pending'))).toEqual([]);

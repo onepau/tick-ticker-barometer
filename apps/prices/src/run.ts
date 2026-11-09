@@ -36,6 +36,22 @@ export interface RunOptions {
   filter?: Omit<CaptureTargetFilter, "excludeRunId">;
   fetcher?: PoliteFetcherOptions;
   now?: () => Date;
+  /**
+   * At most this many domains per invocation (default: all). On the Workers Free
+   * plan (50 outgoing requests, 10 ms CPU) the cron works one domain at a time, so
+   * the request budget goes on pages rather than on every domain's robots.txt.
+   */
+  maxHosts?: number;
+  /** Which domain the window starts at; the cron passes a counter so domains rotate. */
+  hostOffset?: number;
+}
+
+/** The domains to work this invocation: all, or a rotating window of `max`. */
+export function pickHosts(hosts: string[], max?: number, offset = 0): string[] {
+  const sorted = [...hosts].sort();
+  if (!max || max >= sorted.length) return sorted;
+  const start = ((Math.floor(offset) % sorted.length) + sorted.length) % sorted.length;
+  return Array.from({ length: max }, (_, i) => sorted[(start + i) % sorted.length]!);
 }
 
 export interface RunReport {
@@ -86,8 +102,10 @@ export async function runCapture(
     byHost.set(host, [...(byHost.get(host) ?? []), t]);
   }
 
+  const hosts = pickHosts([...byHost.keys()], o.maxHosts, o.hostOffset);
   await Promise.all(
-    [...byHost.entries()].map(async ([host, list]) => {
+    hosts.map(async (host) => {
+      const list = byHost.get(host)!;
       for (const t of list) {
         const adapter = adapterFor(t.url, t.adapter_key)!;
         attempted++;
