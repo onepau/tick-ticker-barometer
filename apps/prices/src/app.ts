@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { listUnconfirmedRetailerPrices, type MarketCode } from "@baromontres/shared";
+import { getRunReport, listOpenReviewFlags, listUnconfirmedRetailerPrices, type MarketCode } from "@baromontres/shared";
 import { bookmarkletHref, capturePage } from "./bookmarklet.ts";
 import { handleCapture, type CapturePayload } from "./capture.ts";
 import { numVar, type PricesEnv } from "./env.ts";
@@ -64,13 +64,24 @@ export function createApp() {
     });
   });
 
-  // Last runs and the retailer prices that do not count yet.
+  // Validation report: last runs, the stored report of one run (?run=ID, default the
+  // latest that has one: coverage, changes, outliers), the snapshots held back for
+  // review, and the retailer prices that do not count yet.
   app.get("/api/report", async (c) => {
     if (!tokenOk(c.req.header("authorization"), c.env.RUN_TOKEN)) return c.json({ error: "unauthorised" }, 401);
+    const runParam = c.req.query("run");
+    if (runParam !== undefined && !/^\d+$/.test(runParam)) return c.json({ error: "run must be a run id" }, 400);
     const { results: runs } = await c.env.DB.prepare(
       `SELECT id, started_at, finished_at, "trigger" AS "trigger", counts FROM capture_runs ORDER BY id DESC LIMIT 10`,
     ).all();
-    return c.json({ runs, unconfirmed_retailer_prices: await listUnconfirmedRetailerPrices(c.env.DB) });
+    const report = await getRunReport(c.env.DB, runParam !== undefined ? Number(runParam) : undefined);
+    c.header("Cache-Control", "no-store");
+    return c.json({
+      runs,
+      report,
+      open_review_flags: await listOpenReviewFlags(c.env.DB),
+      unconfirmed_retailer_prices: await listUnconfirmedRetailerPrices(c.env.DB),
+    });
   });
 
   const origin = (c: { env: PricesEnv; req: { url: string } }) => c.env.PUBLIC_ORIGIN ?? new URL(c.req.url).origin;

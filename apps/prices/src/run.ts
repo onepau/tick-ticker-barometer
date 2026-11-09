@@ -18,11 +18,13 @@ import {
   listCaptureTargets,
   recordRobotsCheck,
   startCaptureRun,
+  storeRunReport,
   upsertPriceSource,
   type CaptureTarget,
   type CaptureTargetFilter,
   type CaptureTrigger,
   type PriceStatus,
+  type RunProblem,
 } from "@baromontres/shared";
 import { adapterFor, fetchPrice, type PriceResult } from "./adapters/index.ts";
 import { evidenceDocument } from "./extract.ts";
@@ -44,7 +46,7 @@ export interface RunReport {
   remaining: number;
   counts: Record<string, number>;
   /** Pages whose price was not read, with the reason. */
-  problems: { url: string; status: string; message: string }[];
+  problems: { url: string; status: string; message: string; reference_id?: number; market_code?: string }[];
   /** Retailer prices that do not count yet (no manual brand capture). */
   unconfirmedRetailer: string[];
   requests: number;
@@ -151,7 +153,7 @@ export async function runCapture(
           });
         }
         if (result.status !== "ok") {
-          problems.push({ url: t.url, status: result.status, message: result.message ?? "" });
+          problems.push({ url: t.url, status: result.status, message: result.message ?? "", reference_id: t.reference_id, market_code: t.market_code });
         }
         if (t.source.startsWith("retailer:") && result.status === "ok" && !(await hasManualBrandCapture(db, t.reference_id))) {
           unconfirmed.add(`${t.reference_slug} ${t.market_code} (${t.source})`);
@@ -174,6 +176,15 @@ export async function runCapture(
   const allCounts = { ...counts, remaining, requests: fetcher.requestsMade, deferred };
   if (finished) {
     await finishCaptureRun(db, runId, allCounts, errors, now().toISOString());
+    // Validation report: coverage, changes since the previous capture, outliers.
+    const scope = runnable(await listCaptureTargets(db, o.filter ?? {}));
+    await storeRunReport(
+      db,
+      runId,
+      scope.map((t) => ({ reference_id: t.reference_id, market_code: t.market_code, brand_slug: t.brand_slug })),
+      errors as RunProblem[],
+      now(),
+    );
   } else {
     await db
       .prepare(`UPDATE capture_runs SET counts = ?, errors = ? WHERE id = ?`)

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getLatestPrices, getCaptureRun } from '@baromontres/shared';
+import { getLatestPrices, getCaptureRun, getRunReport } from '@baromontres/shared';
 import { runCapture } from '../src/run.ts';
 import { fakeR2, fixture, fixtureNet, seededDb } from './helpers.ts';
 
@@ -95,6 +95,37 @@ describe('runCapture end to end (fixtures, fake network and R2)', () => {
     const report = await runCapture(t.d1, fakeR2().bucket, { trigger: 'manual', filter: { brandSlugs: ['omega'] }, fetcher: net.opts });
     expect(report).toMatchObject({ attempted: 0, remaining: 0 });
     expect(net.calls).toEqual([]);
+  });
+});
+
+describe('validation report of a run', () => {
+  it('is stored when the run finishes: coverage, and the second run shows the change', async () => {
+    const t = seededDb();
+    const filter = { brandSlugs: ['cartier'], markets: ['CH' as const], referenceIds: refIds(t, ['CRWSSA0029', 'CRWGTA0011']) };
+    const first = await runCapture(t.d1, fakeR2().bucket, { trigger: 'manual', filter, fetcher: fixtureNet({ [URLS.cartierCH]: fixture('cartier-CRWSSA0029-ch.html') }).opts });
+    const r1 = (await getRunReport(t.d1, first.runId))!;
+    // CRWGTA0011 is not served by the fake network (404), so one of two cells is ok.
+    expect(r1.coverage).toMatchObject({ cells: 2, ok: 1, share: 0.5, by_status: { ok: 1, unavailable: 1 } });
+    expect(r1.changes).toEqual([]);
+    // The same page again with the price raised 20%: a change, an outlier, a held-back snapshot.
+    const raised = fixture('cartier-CRWSSA0029-ch.html').replaceAll('CHF 7,000', 'CHF 8,400').replace(/"price":\s*"[^"]*"/, '"price":"CHF 8,400"');
+    const second = await runCapture(t.d1, fakeR2().bucket, { trigger: 'manual', filter, fetcher: fixtureNet({ [URLS.cartierCH]: raised }).opts });
+    const r2 = (await getRunReport(t.d1, second.runId))!;
+    expect(r2.changes).toHaveLength(1);
+    expect(r2.changes[0]).toMatchObject({ reference: 'cartier/crwssa0029', previous_minor: 700_000, current_minor: 840_000, change_pct: 20, flagged: true });
+    expect(r2.outliers.map((o) => o.kind)).toEqual(['change_over_15']);
+    expect(t.raw.prepare(`SELECT COUNT(*) AS n FROM price_snapshots_countable WHERE run_id = ?`).get(second.runId)).toEqual({ n: 1 }); // the unavailable cell; the 20% one is held back
+  });
+
+  it('a page in the wrong currency is an outlier, not a price', async () => {
+    const t = seededDb();
+    const filter = { brandSlugs: ['cartier'], markets: ['CH' as const], referenceIds: refIds(t, ['CRWSSA0029']) };
+    // The CH URL served the French page (EUR).
+    const report = await runCapture(t.d1, fakeR2().bucket, { trigger: 'manual', filter, fetcher: fixtureNet({ [URLS.cartierCH]: fixture('cartier-CRWSSA0029-fr.html') }).opts });
+    expect(report.results[0]!.result).toMatchObject({ status: 'error', amountMinor: null });
+    const r = (await getRunReport(t.d1, report.runId))!;
+    expect(r.coverage.ok).toBe(0);
+    expect(r.outliers).toMatchObject([{ kind: 'currency_mismatch', detail: expect.stringMatching(/currency EUR/) }]);
   });
 });
 
