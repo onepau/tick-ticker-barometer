@@ -9,6 +9,8 @@ export interface PricesEnv {
   MAX_REQUESTS_PER_INVOCATION?: string;
   INVOCATION_BUDGET_MS?: string;
   MIN_DELAY_MS?: string;
+  /** Domains per cron invocation; unset = all. "1" on the Workers Free plan. */
+  MAX_HOSTS_PER_INVOCATION?: string;
 }
 
 export const numVar = (v: string | undefined, fallback: number): number => {

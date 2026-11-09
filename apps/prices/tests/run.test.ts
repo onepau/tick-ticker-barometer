@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getLatestPrices, getCaptureRun, getRunReport } from '@baromontres/shared';
-import { runCapture } from '../src/run.ts';
+import { pickHosts, runCapture } from '../src/run.ts';
 import { fakeR2, fixture, fixtureNet, seededDb } from './helpers.ts';
 
 const URLS = {
@@ -132,3 +132,30 @@ describe('validation report of a run', () => {
 function refIds(t: ReturnType<typeof seededDb>, codes: string[]): number[] {
   return codes.map((c) => (t.raw.prepare(`SELECT id FROM watch_references WHERE ref_code = ?`).get(c) as { id: number }).id);
 }
+
+describe('Workers Free plan: one domain per cron invocation', () => {
+  it('pickHosts rotates a window over the sorted domains', () => {
+    const hosts = ['www.oris.ch', 'www.cartier.com', 'www.breitling.com'];
+    expect(pickHosts(hosts)).toEqual(['www.breitling.com', 'www.cartier.com', 'www.oris.ch']);
+    expect(pickHosts(hosts, 1, 0)).toEqual(['www.breitling.com']);
+    expect(pickHosts(hosts, 1, 1)).toEqual(['www.cartier.com']);
+    expect(pickHosts(hosts, 1, 5)).toEqual(['www.oris.ch']);
+    expect(pickHosts(hosts, 2, 2)).toEqual(['www.oris.ch', 'www.breitling.com']);
+    expect(pickHosts(hosts, 5, 1)).toHaveLength(3);
+  });
+
+  it('with maxHosts 1 an invocation touches one domain, and the run resumes on the next', async () => {
+    const t = seededDb();
+    const filter = { brandSlugs: ['cartier', 'breitling'], referenceIds: refIds(t, ['CRWSSA0029', 'AB0138211B1A1']), markets: ['CH' as const] };
+    const now = () => new Date('2026-12-01T04:00:00Z');
+    const pages = { [URLS.cartierCH]: fixture('cartier-CRWSSA0029-ch.html') };
+    const net1 = fixtureNet(pages);
+    const first = await runCapture(t.d1, fakeR2().bucket, { trigger: 'cron', filter, now, maxHosts: 1, hostOffset: 1, fetcher: net1.opts });
+    expect(new Set(net1.calls.map((c) => new URL(c).host))).toEqual(new Set(['www.cartier.com']));
+    expect(first).toMatchObject({ finished: false, attempted: 1, remaining: 1 });
+    const net2 = fixtureNet(pages);
+    const second = await runCapture(t.d1, fakeR2().bucket, { trigger: 'cron', filter, now, maxHosts: 1, hostOffset: 2, fetcher: net2.opts });
+    expect(new Set(net2.calls.map((c) => new URL(c).host))).toEqual(new Set(['www.breitling.com']));
+    expect(second).toMatchObject({ runId: first.runId, finished: true, remaining: 0 });
+  });
+});

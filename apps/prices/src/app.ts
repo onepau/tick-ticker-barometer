@@ -42,6 +42,7 @@ export function createApp() {
         referenceIds: list(q.refs)?.map(Number).filter(Number.isInteger),
         limit: Math.min(Number(q.limit) || 10, 200),
       },
+      maxHosts: c.env.MAX_HOSTS_PER_INVOCATION ? numVar(c.env.MAX_HOSTS_PER_INVOCATION, 1) : undefined,
       fetcher: {
         minDelayMs: numVar(c.env.MIN_DELAY_MS, 3000),
         maxRequests: numVar(c.env.MAX_REQUESTS_PER_INVOCATION, 40),
