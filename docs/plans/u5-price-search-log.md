@@ -257,3 +257,11 @@ Open these in your own browser. Expect the page to load with a price near the ex
 - **Corrections found while extracting:** a first pass over Omega JSON-LD returned prices for other items, and a first pass over Oris microdata returned strap prices on pages with no watch price. Both were fixed by reading the main visible price span (Omega) and by treating pages marked "no price shown" as `POR` (Oris).
 - **Blocks:** none new. Every CSV row with a URL now has either a price or `POR`, so no gap needed a fetch.
 - **Dates:** `price_seen_on` is `2026-11-06` for every row that has a price.
+
+## 8. Paul's manual check (9 November 2026)
+
+Paul checked the Rolex and Panerai rows by hand in his own browser, as a person, not through any tool.
+
+- **Rolex:** prices on rolex.com match the retailer prices in the CSV for all three references (126610LN, 126000, 126234). rolex.com shows prices to a person in a browser (for example the Oyster Perpetual 36 page on the `fr-ch` locale), even though it returned 403 to the automated requests in round 1. The three Rolex rows are now `verified = TRUE`.
+- **Panerai:** the two references found at retailers (PAM01312 Luminor Marina 44mm, PAM00753 Radiomir 45mm) are **not listed on panerai.com**, which does show prices for the watches it lists. Both rows were removed from the CSV; Panerai now has no rows until Paul adds current references.
+- **Point for the blog:** a retailer listing is not proof that a reference is current. Two of two Panerai retailer finds were references the brand no longer shows.
