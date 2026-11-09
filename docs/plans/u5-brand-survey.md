@@ -2,6 +2,24 @@
 
 Researched 6 November 2026. Research only: no code, nothing loaded into D1. Companion file: `u5-reference-candidates.csv` (163 rows: 118 carried over, 40 new, 5 Rolex and Panerai examples).
 
+## Columns
+
+`u5-reference-candidates.csv` has one row per reference. The review columns are on the left.
+
+| Column | Meaning |
+| --- | --- |
+| `brand`, `family`, `ref_code` | Brand, collection and the brand's reference number |
+| `verified` | `FALSE` on every row. Paul sets it to `TRUE` once he has checked the row; it imports as a checkbox in Numbers, Excel and Google Sheets |
+| `name` | Model name as shown on the site |
+| `price_ch`, `price_fr`, `price_uk`, `price_us` | List price as a plain number in major units, no symbol and no thousands separator. The currency is implied by the market: CHF, EUR, GBP and USD. CH, FR and UK prices are shown with tax where the site says so; US prices exclude sales tax where the site says so (Breitling is the only brand that states it on the page). Blank means no page in that market. `POR` means the page exists but shows no price (price on request, or not available online) |
+| `price_seen_on` | Date the prices were read from the page (`2026-11-06`) |
+| `material`, `diameter_mm` | Case material and diameter. Blank where the page does not say, or where the case is not round |
+| `url_ch`, `url_fr`, `url_uk`, `url_us` | Product page in each market. Blank means not sold there, missing from the sitemap, or not reached |
+| `price_source` | `official` (default), `retailer:<domain>` or `manual` |
+| `notes` | Short facts separated by semicolons |
+
+How the prices were filled: from the pages saved on 6 November 2026 (JSON-LD, microdata or the visible price text), not from new requests. Spot checks against the survey figures agreed for ten sample references. The Rolex and Panerai example prices come from retailers and carry `price_source` `retailer:`.
+
 ## Method and etiquette
 
 - `robots.txt` fetched first for every candidate. Product and collection pages were fetched only where `User-agent: *` does not disallow them.
@@ -100,4 +118,4 @@ None of the kept brands needs JavaScript for prices, so there is no genuine JS-r
 - Blank URL cells mean the model is not sold in that market, was missing from the sitemap, or returned 404. Rows with gaps are kept.
 - `diameter_mm` is blank for rectangular or square cases; dimensions are in `notes`. `material` is blank where the page does not state it.
 - Oris references were picked from the sitemap by judgement, not from a bestseller list. Grand Seiko names are descriptive, taken from product copy.
-- Prices were not captured, except the example prices quoted in the Rolex and Panerai notes.
+- Prices are in the `price_*` columns, read from pages saved on 6 November 2026. They are list prices as displayed that day and have not been checked against a second source.

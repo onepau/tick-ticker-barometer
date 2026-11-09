@@ -249,3 +249,11 @@ Open these in your own browser. Expect the page to load with a price near the ex
 - My Omega, Rado and Breitling spot-check price greps did not return clean price text, so those three prices rest on the subagents' reports.
 - Cartier's US sample price is `$7,800` in my check and `$8,400` in the subagent's summary for a different reference; they are not a contradiction but should be matched by reference when cross-checking.
 - Rolex and Panerai official-site price display is from search results and trade reports, not from the brand sites.
+
+## 7. Round 3 (9 November 2026): filling the price columns
+
+- **Requests made to any brand or retailer site: none.** Paul asked for separate price columns and a `verified` column. Every price was read from the HTML pages already saved on 6 November 2026 (rounds 1 and 2), using JSON-LD offers, `itemprop` microdata or the visible price text (reported by me; the extraction script ran locally).
+- **Cross-check:** ten sample references (Cartier, Longines, Rado, Breitling, Omega, Grand Seiko, Tissot) agreed with the prices the subagents had reported on 6 November.
+- **Corrections found while extracting:** a first pass over Omega JSON-LD returned prices for other items, and a first pass over Oris microdata returned strap prices on pages with no watch price. Both were fixed by reading the main visible price span (Omega) and by treating pages marked "no price shown" as `POR` (Oris).
+- **Blocks:** none new. Every CSV row with a URL now has either a price or `POR`, so no gap needed a fetch.
+- **Dates:** `price_seen_on` is `2026-11-06` for every row that has a price.
