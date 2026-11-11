@@ -601,10 +601,13 @@ export async function listCaptureTargets(
   if (f.markets?.length) inList("u.market_code", f.markets);
   if (f.referenceIds?.length) inList("u.reference_id", f.referenceIds);
   if (f.excludeRunId !== undefined) {
+    // An uncorrelated NOT IN is read once into a temporary index (about one row read
+    // per snapshot of the run). The correlated NOT EXISTS it replaces made SQLite scan
+    // the whole run for every URL: 561 x n rows read per call, which D1 bills.
     where.push(
-      `NOT EXISTS (SELECT 1 FROM price_snapshots s
-                    WHERE s.run_id = ? AND s.reference_id = u.reference_id
-                      AND s.market_code = u.market_code AND s.source = u.source)`,
+      `(u.reference_id, u.market_code, u.source) NOT IN
+         (SELECT s.reference_id, s.market_code, s.source FROM price_snapshots s
+           WHERE s.run_id = ? AND s.source IS NOT NULL)`,
     );
     binds.push(f.excludeRunId);
   }

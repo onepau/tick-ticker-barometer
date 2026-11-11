@@ -160,7 +160,7 @@ The barometer and cron Workers aren't redeployed, so their CLAUDE.md checks aren
 
 ## 12. What happens next
 
-- The cron fires every 10 minutes on the 1st to the 3rd of each month. The first scheduled run starts at 00:00 UTC on **1 December 2026** and should finish that day, two weeks before the 15 December baseline deadline. On 2 December, check `/api/report`: the run should be finished, with coverage by brand and market. Unit 8 will add the January runbook and the baseline review.
+- The cron fires every 5 minutes, but only works inside a capture period: the 1st of each month (and the two days after, as spare time), 29 December 2026, and every day from 1 to 20 January 2027. The first scheduled run starts at 00:00 UTC on **1 December 2026** and should finish that day (about 10 hours), two weeks before the 15 December baseline deadline. On 2 December, check `/api/report`: the run should be finished, with coverage by brand and market. Then follow `docs/runbooks/price-capture.md` for the baseline checkpoint, the 29 December run and the January daily checks.
 - On Free, a full run by hand isn't practical (5 pages per call, about 115 calls). Use manual runs only for spot checks.
 
 ## Rollback

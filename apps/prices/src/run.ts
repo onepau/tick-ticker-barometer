@@ -3,9 +3,10 @@
 // page. Domains run side by side; within a domain requests are serial and paced
 // by the PoliteFetcher.
 //
-// Monthly cron runs are resumable: each invocation picks up the month's open run
-// and skips pages that already have a snapshot in it, until none are left. Manual
-// runs (POST /api/run) are closed at the end of their invocation.
+// Cron runs are resumable: each invocation picks up the open run of the current
+// capture period (src/calendar.ts) and skips pages that already have a snapshot in
+// it, until none are left. Manual runs (POST /api/run) are closed at the end of
+// their invocation.
 
 import {
   countRunSnapshots,
@@ -26,6 +27,7 @@ import {
   type PriceStatus,
   type RunProblem,
 } from "@baromontres/shared";
+import { periodFor } from "./calendar.ts";
 import { adapterFor, fetchPrice, type PriceResult } from "./adapters/index.ts";
 import { evidenceDocument } from "./extract.ts";
 import { evidenceKey, putEvidence } from "./evidence.ts";
@@ -83,7 +85,7 @@ export async function runCapture(
   const now = o.now ?? (() => new Date());
   const { runId, resumed, done } = await openRun(db, o.trigger, now());
   if (done) {
-    // This month's cron run already finished: nothing to do until next month.
+    // No capture period is open, or its run already finished: nothing to do.
     return { runId, resumed, finished: true, attempted: 0, remaining: 0, counts: await countRunSnapshots(db, runId), problems: [], unconfirmedRetailer: [], requests: 0, results: [] };
   }
   const fetcher = new PoliteFetcher(o.fetcher);
@@ -224,20 +226,22 @@ export async function runCapture(
 }
 
 /**
- * Cron: resume this month's open run, or start one if the month has none. An open
- * run from an earlier month is closed first. Manual: always a fresh run.
+ * Cron: resume the open run of the current capture period, or start one if the
+ * period has none. An open run from an earlier period is closed first. Outside a
+ * period, or once the period's run has finished, nothing starts (one D1 query, or
+ * none). Manual: always a fresh run.
  */
 async function openRun(db: D1Database, trigger: CaptureTrigger, now: Date): Promise<{ runId: number; resumed: boolean; done: boolean }> {
   if (trigger === "cron") {
-    const monthStart = `${now.toISOString().slice(0, 7)}-01T00:00:00.000Z`;
-    const open = await findOpenCaptureRun(db, "cron");
-    if (open && open.started_at >= monthStart) return { runId: open.id, resumed: true, done: false };
-    if (open) {
-      const counts = await countRunSnapshots(db, open.id);
-      await finishCaptureRun(db, open.id, { ...counts, closed_unfinished: 1 }, open.errors ? JSON.parse(open.errors) : [], now.toISOString());
+    const period = periodFor(now);
+    if (!period) return { runId: 0, resumed: false, done: true };
+    const inPeriod = await findCaptureRunSince(db, "cron", period);
+    if (inPeriod) return { runId: inPeriod.id, resumed: true, done: inPeriod.finished_at !== null };
+    const stale = await findOpenCaptureRun(db, "cron");
+    if (stale) {
+      const counts = await countRunSnapshots(db, stale.id);
+      await finishCaptureRun(db, stale.id, { ...counts, closed_unfinished: 1 }, stale.errors ? JSON.parse(stale.errors) : [], now.toISOString());
     }
-    const thisMonth = await findCaptureRunSince(db, "cron", monthStart);
-    if (thisMonth) return { runId: thisMonth.id, resumed: true, done: true };
   }
   return { runId: await startCaptureRun(db, trigger, now.toISOString()), resumed: false, done: false };
 }
