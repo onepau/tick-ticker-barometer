@@ -4,6 +4,9 @@ import { runCapture } from "./run.ts";
 
 const app = createApp();
 
+/** Must match the cron expression in wrangler.toml (`*/5 * * * *`). */
+const CRON_INTERVAL_MS = 5 * 60_000;
+
 export default {
   fetch: app.fetch,
   async scheduled(event: ScheduledController, env: PricesEnv, ctx: ExecutionContext) {
@@ -13,8 +16,8 @@ export default {
       runCapture(env.DB, env.EVIDENCE, {
         trigger: "cron",
         maxHosts,
-        // One step per 10-minute firing, so each firing starts at the next domain.
-        hostOffset: Math.floor(event.scheduledTime / 600_000),
+        // One step per firing, so each firing starts at the next domain.
+        hostOffset: Math.floor(event.scheduledTime / CRON_INTERVAL_MS),
         fetcher: {
           minDelayMs: numVar(env.MIN_DELAY_MS, 3000),
           maxRequests: numVar(env.MAX_REQUESTS_PER_INVOCATION, 40),

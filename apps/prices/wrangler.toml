@@ -17,12 +17,14 @@ routes = [{ pattern = "prices.tick-ticker.com", custom_domain = true }]
 
 [triggers]
 # Workers Free plan (confirmed by Paul, 9 November 2026): 10 ms CPU and 50 outgoing
-# requests per invocation, at most 5 cron triggers per account. So the monthly run
-# is spread thin: every 10 minutes on the 1st to the 3rd of the month (432 firings),
-# each working one domain (robots.txt plus up to 5 pages). About 561 pages need
-# about 115 firings, so the run normally ends on the 1st; days 2 and 3 are margin
-# for rate limits. Once the month's run is finished, a firing does one D1 query.
-crons = ["*/10 * 1-3 * *"]
+# requests per invocation, at most 5 cron triggers per account. So this Worker uses
+# ONE trigger, every 5 minutes, and src/calendar.ts decides whether a capture period
+# is open (monthly on the 1st, 29 December 2026, daily 1-20 January 2027). Outside a
+# period a firing exits without touching D1. Each working firing handles one domain
+# (robots.txt plus up to 5 pages); 561 pages need about 115 firings, about 10 hours,
+# so a daily run has 2.5 times the firings it needs (288 a day). If you change this
+# expression, change CRON_INTERVAL_MS in src/index.ts and the sizing in the README.
+crons = ["*/5 * * * *"]
 
 [vars]
 # Public origin of this Worker, used by the bookmarklet and the capture page.

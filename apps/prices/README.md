@@ -1,12 +1,12 @@
 # Price Worker
 
-Captures official list prices for the tracked references in four markets (CH, FR, UK, US), with evidence for every figure. Worker name `tick-ticker-prices`; shares the `baromontres` D1 database. **Not deployed.** `workers_dev = false` and no route yet.
+Captures official list prices for the tracked references in four markets (CH, FR, UK, US), with evidence for every figure. Worker name `tick-ticker-prices`; shares the `baromontres` D1 database. Runbook: `docs/runbooks/price-capture.md`.
 
 ## How a price is captured
 
 | Source                                                                                     | How                                                      | Stored as                                          |
 | ------------------------------------------------------------------------------------------ | -------------------------------------------------------- | -------------------------------------------------- |
-| Brand site that allows it (Cartier, Breitling, Longines, Tissot, Rado, Omega CH, Oris, Grand Seiko)                            | Monthly cron fetches the product page with plain `fetch` | `method = 'fetch'`, `source = 'brand:<domain>'`    |
+| Brand site that allows it (Cartier, Breitling, Longines, Tissot, Rado, Omega CH, Oris, Grand Seiko)                            | Cron fetches the product page with plain `fetch` | `method = 'fetch'`, `source = 'brand:<domain>'`    |
 | Authorised retailer (Bucherer CH, FR, US; Watches of Switzerland UK) for Rolex and Panerai | Same cron                                                | `method = 'fetch'`, `source = 'retailer:<domain>'` |
 | Rolex and Panerai brand sites                                                              | Paul's bookmarklet, on a page he opened himself          | `method = 'manual'`, `source = 'brand:<domain>'`   |
 
@@ -24,7 +24,19 @@ Evidence goes to the R2 bucket `tick-ticker-price-evidence` under `runs/<run>/<b
 
 ## Schedule
 
-Cron `*/10 * 1-3 * *` (sized for Workers Free): every 10 minutes on the 1st to the 3rd of each month, 432 firings. Each firing works one domain, rotating (`MAX_HOSTS_PER_INVOCATION`), with at most `MAX_REQUESTS_PER_INVOCATION` requests (6, robots.txt included) within `INVOCATION_BUDGET_MS` (2 minutes); the next firing resumes the month's open run, skipping pages already captured. 561 pages need about 115 firings, so the run normally ends on the 1st. Once it is finished, later firings do one D1 query and stop. A run left unfinished is closed when the next month starts.
+One cron trigger, `*/5 * * * *` (the Free plan allows five per account, shared with other Workers). `src/calendar.ts` turns each firing into a capture period or nothing:
+
+| Period                  | Dates (UTC)                  | Open for                        |
+| ----------------------- | ---------------------------- | ------------------------------- |
+| Monthly                 | the 1st of every month       | 3 days (spare time for limits)  |
+| Second December run     | 29 December 2026             | until 31 December               |
+| Daily January runs      | 1 to 20 January 2027         | that day only                   |
+
+The 1 December 2026 run is the baseline (due by 15 December). A period gets one run: each firing resumes the period's open run, skipping pages already captured, and does nothing once it has finished. A run left unfinished is closed when the next period starts. Outside every period a firing exits at once, with no D1 query. Add a date in `EXTRA_RUNS` or `DAILY_RANGES` in `src/calendar.ts` (see `docs/runbooks/price-capture.md`).
+
+Each working firing handles one domain, rotating (`MAX_HOSTS_PER_INVOCATION`), with at most `MAX_REQUESTS_PER_INVOCATION` requests (6, robots.txt included) within `INVOCATION_BUDGET_MS` (2 minutes). 561 pages need about 115 firings (5 pages each), so a run takes about 10 hours at one firing per 5 minutes; a day has 288 firings, so a daily run has 2.5 times the firings it needs. Requests to one domain stay at least 3 s apart.
+
+Workers Free sizing per day of a daily run: 288 firings (100,000 requests a day allowed), about 690 outgoing requests (50 per invocation allowed), about 1.2 million D1 rows read (5 million allowed) and roughly 5,000 rows written (100,000 allowed). The page-to-capture query reads the run's snapshots once (`NOT IN`), not once per URL.
 
 Pages whose host has no adapter are left out of a run (`ADAPTER_BY_HOST` in `scripts/references-sql.ts` marks them `adapter pending` when the seed is built). All eight sources now have one; Bell & Ross and Montblanc are out (blocked), and Rolex, Tudor and other blocked brands are not fetched.
 
@@ -129,4 +141,4 @@ wrangler d1 execute baromontres --remote --command "UPDATE price_review_flags SE
 - `wrangler secret put RUN_TOKEN` and `wrangler secret put CAPTURE_TOKEN` (16+ random characters each).
 - Hostname: `prices.tick-ticker.com` (route set in `wrangler.toml`). Put `/capture` and `/api/*` behind Cloudflare Access if wanted (`/api/capture` already needs the token).
 - Apply migration 0008 remotely after 0005–0007 (see the registry README about `d1_migrations` history), then the registry and reference seeds.
-- Plan tier: **Workers Free** (Paul, 9 November 2026). `wrangler.toml` is sized for it: 10 ms CPU and 50 outgoing requests per invocation, so each cron firing works one domain (`MAX_HOSTS_PER_INVOCATION = "1"`) with at most 6 requests, robots.txt included, every 10 minutes on the 1st to the 3rd. Parsing a 580 KB page takes about 0.3 ms, so CPU should fit; if Workers Observability shows "Exceeded CPU" on firings, lower `MAX_REQUESTS_PER_INVOCATION` to 4. Manual `/api/run` calls use the same caps: filter to one brand and market. On Workers Paid, set 40 requests, remove `MAX_HOSTS_PER_INVOCATION`, and the original `*/10 4-7 1 * *` schedule is enough.
+- Plan tier: **Workers Free** (Paul, 9 November 2026). `wrangler.toml` is sized for it: 10 ms CPU and 50 outgoing requests per invocation, so each cron firing works one domain (`MAX_HOSTS_PER_INVOCATION = "1"`) with at most 6 requests, robots.txt included, every 5 minutes inside a capture period (see Schedule). Parsing a 580 KB page takes about 0.3 ms, so CPU should fit; if Workers Observability shows "Exceeded CPU" on firings, lower `MAX_REQUESTS_PER_INVOCATION` to 4. Manual `/api/run` calls use the same caps: filter to one brand and market. On Workers Paid, set 40 requests, remove `MAX_HOSTS_PER_INVOCATION`, and a shorter schedule is enough.
