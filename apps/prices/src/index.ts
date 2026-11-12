@@ -4,14 +4,20 @@ import { runCapture } from "./run.ts";
 
 const app = createApp();
 
-/** Must match the cron expression in wrangler.toml (`*/5 * * * *`). */
+// Must match the cron expression in wrangler.toml (every 5 minutes).
 const CRON_INTERVAL_MS = 5 * 60_000;
 
 export default {
   fetch: app.fetch,
-  async scheduled(event: ScheduledController, env: PricesEnv, ctx: ExecutionContext) {
+  async scheduled(
+    event: ScheduledController,
+    env: PricesEnv,
+    ctx: ExecutionContext,
+  ) {
     const budget = numVar(env.INVOCATION_BUDGET_MS, 600_000);
-    const maxHosts = env.MAX_HOSTS_PER_INVOCATION ? numVar(env.MAX_HOSTS_PER_INVOCATION, 1) : undefined;
+    const maxHosts = env.MAX_HOSTS_PER_INVOCATION
+      ? numVar(env.MAX_HOSTS_PER_INVOCATION, 1)
+      : undefined;
     ctx.waitUntil(
       runCapture(env.DB, env.EVIDENCE, {
         trigger: "cron",
@@ -25,7 +31,17 @@ export default {
         },
       }).then((r) =>
         console.log(
-          JSON.stringify({ run: r.runId, resumed: r.resumed, finished: r.finished, attempted: r.attempted, remaining: r.remaining, requests: r.requests, counts: r.counts, problems: r.problems.length, unconfirmed_retailer: r.unconfirmedRetailer.length }),
+          JSON.stringify({
+            run: r.runId,
+            resumed: r.resumed,
+            finished: r.finished,
+            attempted: r.attempted,
+            remaining: r.remaining,
+            requests: r.requests,
+            counts: r.counts,
+            problems: r.problems.length,
+            unconfirmed_retailer: r.unconfirmedRetailer.length,
+          }),
         ),
       ),
     );
