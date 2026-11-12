@@ -1,6 +1,6 @@
 /**
  * Server-rendered registry pages: /brand/<slug>, /group/<slug>, /brands and the
- * dormant-and-dead hub. Each page function loads what it needs from D1 and returns the
+ * dormant-and-defunct hub. Each page function loads what it needs from D1 and returns the
  * finished HTML, or null for an unknown slug (the caller renders the 404).
  *
  * Many brands carry only a name, so every fact is optional: an empty fact is left out
@@ -21,6 +21,8 @@ import {
   type BrandPersonRow,
   type BrandRow,
   type BrandStatus,
+  fromPublicStatus,
+  isNameOnly,
   type GroupRow,
 } from "@baromontres/shared/registry";
 import { crumbs, escapeHtml, layout } from "./html.ts";
@@ -32,11 +34,12 @@ export const BLOG_ORIGIN = "https://blog.tick-ticker.com";
 export const BLOG_DEAD_BRANDS_URL = `${BLOG_ORIGIN}/posts/gphg-dead-brands`;
 export const BLOG_COMEBACK_BRANDS_URL = `${BLOG_ORIGIN}/posts/gphg-comeback-brands`;
 
-export const STATUSES: BrandStatus[] = ["active", "dormant", "dead", "revived"];
+/** Public status names, as used in the `?status=` filter. */
+export const STATUSES = ["active", "dormant", "defunct", "revived"] as const;
 const STATUS_LABEL: Record<BrandStatus, string> = {
   active: "Active",
   dormant: "Dormant",
-  dead: "Dead",
+  dead: "Defunct",
   revived: "Revived",
 };
 export const HUB_STATUSES: BrandStatus[] = ["dead", "dormant", "revived"];
@@ -298,7 +301,7 @@ export async function brandPage(
   const description =
     lead ||
     `${brand.name} in the tick-ticker watch brand registry, with links to its records on the GPHG Index and Only Watch Index where they exist.`;
-  const sparse = !facts;
+  const sparse = isNameOnly(brand, people.length);
 
   const main = `${lead ? `<p class="lead">${escapeHtml(lead)}</p>` : ""}${
     sparse
@@ -326,6 +329,7 @@ export async function brandPage(
         description,
         canonical: `/brand/${brand.slug}`,
         ogType: "profile",
+        noindex: sparse,
         navCurrent: "/brands",
         jsonld: [
           breadcrumbLd(origin, [
@@ -453,10 +457,18 @@ export async function brandsIndexPage(
   const groups = await listGroupFeedRows(db);
   const rawStatus = params.get("status") ?? "";
   const rawGroup = params.get("group") ?? "";
-  const status =
-    rawStatus === "unknown" || (STATUSES as string[]).includes(rawStatus)
-      ? (rawStatus as BrandDirectoryFilter["status"])
+  // The URL says "defunct"; the database says "dead".
+  const publicStatus = (STATUSES as readonly string[]).includes(rawStatus)
+    ? rawStatus
+    : rawStatus === "unknown"
+      ? "unknown"
       : undefined;
+  const status: BrandDirectoryFilter["status"] | undefined =
+    publicStatus === "unknown"
+      ? "unknown"
+      : publicStatus
+        ? (fromPublicStatus(publicStatus) ?? undefined)
+        : undefined;
   const group =
     rawGroup === "independent" || groups.some((g) => g.slug === rawGroup)
       ? rawGroup
@@ -486,9 +498,9 @@ export async function brandsIndexPage(
     `<option value="${escapeHtml(value)}"${sel ? " selected" : ""}>${escapeHtml(label)}</option>`;
   const form = `<form class="filters" method="GET" action="/brands">
     <label>Status<select name="status">
-      ${opt("", "Any status", status === undefined)}
-      ${STATUSES.map((s) => opt(s, STATUS_LABEL[s], status === s)).join("")}
-      ${opt("unknown", "Not yet researched", status === "unknown")}
+      ${opt("", "Any status", publicStatus === undefined)}
+      ${STATUSES.map((s) => opt(s, s[0]!.toUpperCase() + s.slice(1), publicStatus === s)).join("")}
+      ${opt("unknown", "Not yet researched", publicStatus === "unknown")}
     </select></label>
     <label>Group<select name="group">
       ${opt("", "Any group", group === undefined)}
@@ -523,7 +535,7 @@ export async function brandsIndexPage(
   const body = `${crumbs([{ name: "Brands" }])}
   <header class="page-head"><span class="eyebrow">Registry</span>
     <h1 class="display">Watch brands, A–Z</h1>
-    <p class="lead">Every watch brand in the tick-ticker registry, with its group, founding date and status where we have verified them. Brands that went quiet are collected in <a href="/brands/dormant-and-dead">dormant and dead</a>.</p>
+    <p class="lead">Every watch brand in the tick-ticker registry, with its group, founding date and status where we have verified them. Brands that went quiet are collected in <a href="/brands/dormant-and-defunct">dormant and defunct</a>.</p>
     ${form}
   </header>
   <p class="count">${rows.length} ${rows.length === 1 ? "brand" : "brands"}${filtered ? " match these filters" : ""}</p>
@@ -550,7 +562,7 @@ export async function brandsIndexPage(
   };
 }
 
-// ── /brands/dormant-and-dead ─────────────────────────────────────────────────
+// ── /brands/dormant-and-defunct ─────────────────────────────────────────────────
 
 const HUB_COPY: Record<string, { heading: string; blurb: string }> = {
   dead: { heading: "Dead", blurb: "Brands that have closed for good." },
@@ -560,11 +572,11 @@ const HUB_COPY: Record<string, { heading: string; blurb: string }> = {
   },
   revived: {
     heading: "Revived",
-    blurb: "Brands that were dead or dormant and have come back.",
+    blurb: "Brands that were defunct or dormant and have come back.",
   },
 };
 
-export async function dormantAndDeadPage(
+export async function dormantAndDefunctPage(
   db: D1Database,
   origin: string,
 ): Promise<Page> {
@@ -578,9 +590,9 @@ export async function dormantAndDeadPage(
       <ul class="brandlist">${list.map((r) => brandListItem(r, true)).join("")}</ul></section>`;
   }).join("");
 
-  const body = `${crumbs([{ name: "Brands", href: "/brands" }, { name: "Dormant and dead" }])}
+  const body = `${crumbs([{ name: "Brands", href: "/brands" }, { name: "Dormant and defunct" }])}
   <header class="page-head"><span class="eyebrow">Registry hub</span>
-    <h1 class="display">Dormant and dead watch brands</h1>
+    <h1 class="display">Dormant and defunct watch brands</h1>
     <p class="lead">Brands that stopped making watches, went to sleep or came back. Each links to its registry page.</p>
   </header>
   <section class="block"><h2>Read more</h2><div class="linkcards">
@@ -590,24 +602,24 @@ export async function dormantAndDeadPage(
   ${
     rows.length
       ? sections
-      : `<section class="block"><p class="note">No brands are marked dormant, dead or revived yet. Statuses are added as they are researched; see all brands in the <a href="/brands">A–Z index</a>.</p></section>`
+      : `<section class="block"><p class="note">No brands are marked dormant, defunct or revived yet. Statuses are added as they are researched; see all brands in the <a href="/brands">A–Z index</a>.</p></section>`
   }`;
 
   return {
     html: layout(
       origin,
       {
-        title: "Dormant and dead watch brands",
+        title: "Dormant and defunct watch brands",
         description:
-          "Watch brands that have closed, gone dormant or been revived, with links to each brand's registry page and to the journal's dead brands post.",
-        canonical: "/brands/dormant-and-dead",
-        navCurrent: "/brands/dormant-and-dead",
+          "Watch brands that have closed, gone dormant or been revived, with links to each brand's registry page and to the journal's post on the GPHG's dead brands.",
+        canonical: "/brands/dormant-and-defunct",
+        navCurrent: "/brands/dormant-and-defunct",
         jsonld: [
           breadcrumbLd(origin, [
             { name: "Brands", path: "/brands" },
-            { name: "Dormant and dead", path: "/brands/dormant-and-dead" },
+            { name: "Dormant and defunct", path: "/brands/dormant-and-defunct" },
           ]),
-          itemListLd(origin, "Dormant and dead watch brands", rows),
+          itemListLd(origin, "Dormant and defunct watch brands", rows),
         ],
       },
       body,

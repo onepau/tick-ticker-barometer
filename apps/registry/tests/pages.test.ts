@@ -216,9 +216,9 @@ describe("registry pages", () => {
     });
   });
 
-  describe("/brands/dormant-and-dead", () => {
-    it("lists only dormant, dead and revived brands", async () => {
-      const res = await get("/brands/dormant-and-dead");
+  describe("/brands/dormant-and-defunct", () => {
+    it("lists only dormant, defunct and revived brands", async () => {
+      const res = await get("/brands/dormant-and-defunct");
       expect(res.status).toBe(200);
       const html = await res.text();
       for (const slug of ["ebel", "angelus", "zodiac-x"])
@@ -236,14 +236,14 @@ describe("registry pages", () => {
 
     it("renders an empty hub when no status is set", async () => {
       t.raw.exec("UPDATE brands SET status = NULL");
-      const html = await (await get("/brands/dormant-and-dead")).text();
+      const html = await (await get("/brands/dormant-and-defunct")).text();
       expect(html).toContain("No brands are marked");
       expect(html).toContain("gphg-dead-brands");
     });
   });
 
   describe("sitemap, robots and misc routes", () => {
-    it("lists every brand and group URL", async () => {
+    it("lists every indexable brand and every group URL", async () => {
       const res = await get("/sitemap.xml");
       expect(res.status).toBe(200);
       expect(res.headers.get("content-type")).toMatch(/xml/);
@@ -253,8 +253,6 @@ describe("registry pages", () => {
         "angelus",
         "ebel",
         "zodiac-x",
-        "h-moser",
-        "ulysse-nardin",
         "breguet",
       ])
         expect(xml).toContain(`<loc>${ORIGIN}/brand/${slug}</loc>`);
@@ -263,11 +261,56 @@ describe("registry pages", () => {
         "/group/richemont",
         "/group/independent",
         "/brands",
-        "/brands/dormant-and-dead",
+        "/brands/dormant-and-defunct",
       ])
         expect(xml).toContain(`<loc>${ORIGIN}${loc}</loc>`);
-      expect(xml.match(/<url>/g)).toHaveLength(7 + 2 + 3);
+      expect(xml.match(/<url>/g)).toHaveLength(5 + 2 + 3);
       expect(xml).toMatch(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
+    });
+
+    it("leaves name-only brands out of the sitemap", async () => {
+      const xml = await (await get("/sitemap.xml")).text();
+      expect(xml).not.toContain("/brand/h-moser<");
+      expect(xml).not.toContain("/brand/ulysse-nardin<");
+    });
+
+    it("adds a brand to the sitemap and drops noindex once it has one fact", async () => {
+      expect(await (await get("/brand/h-moser")).text()).toContain('content="noindex,follow"');
+      t.raw.exec("UPDATE brands SET founded_year = 2002 WHERE slug = 'h-moser'");
+      expect(await (await get("/brand/h-moser")).text()).not.toContain("noindex");
+      expect(await (await get("/sitemap.xml")).text()).toContain(`<loc>${ORIGIN}/brand/h-moser</loc>`);
+      // A person alone is also a fact.
+      t.raw.exec(
+        "INSERT INTO brand_people (brand_id, name, role) SELECT id, 'A Person', 'founder' FROM brands WHERE slug = 'ulysse-nardin'",
+      );
+      expect(await (await get("/brand/ulysse-nardin")).text()).not.toContain("noindex");
+    });
+
+    it("keeps name-only brands listed on /brands and group pages", async () => {
+      expect(await (await get("/brands")).text()).toContain('href="/brand/h-moser"');
+      expect(await (await get("/group/independent")).text()).toContain('href="/brand/h-moser"');
+    });
+
+    it("shows defunct, never dead, in public text; the filter accepts defunct", async () => {
+      const brand = await (await get("/brand/zodiac-x")).text();
+      expect(brand).toContain("Defunct");
+      expect(brand).not.toMatch(/>Dead</);
+      const list = await (await get("/brands?status=defunct")).text();
+      expect(list).toContain('href="/brand/zodiac-x"');
+      expect(list).not.toContain('href="/brand/ebel"');
+      expect(list).toContain('<option value="defunct" selected>');
+      const res = await get("/brands?status=dead&group=independent");
+      expect(res.status).toBe(301);
+      expect(res.headers.get("location")).toBe("/brands?status=defunct&group=independent");
+    });
+
+    it("301s the old hub URL and the feed says defunct", async () => {
+      const old = await get("/brands/dormant-and-dead");
+      expect(old.status).toBe(301);
+      expect(old.headers.get("location")).toBe("/brands/dormant-and-defunct");
+      const feed: any = await (await get("/api/registry/v1/brands.json")).json();
+      const z = feed.items.find((b: any) => b.slug === "zodiac-x");
+      expect(z.status).toBe("defunct");
     });
 
     it("points robots.txt at the sitemap", async () => {

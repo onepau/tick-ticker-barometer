@@ -25,7 +25,7 @@ import { errorPageHtml } from "./render/html.ts";
 import {
   brandPage,
   brandsIndexPage,
-  dormantAndDeadPage,
+  dormantAndDefunctPage,
   groupPage,
   INDEPENDENT_SLUG,
   type Page,
@@ -213,6 +213,11 @@ export function createRegistryApp(): Hono<Env> {
 
   app.get("/brands", (c) => {
     const q = new URL(c.req.url).searchParams;
+    // "dead" is the database word; the public one is "defunct".
+    if (q.get("status") === "dead") {
+      q.set("status", "defunct");
+      return c.redirect(`/brands?${q}`, 301);
+    }
     // Cache key: only the two filter parameters, in a fixed order.
     const norm = new URLSearchParams();
     for (const k of ["status", "group"]) {
@@ -225,7 +230,11 @@ export function createRegistryApp(): Hono<Env> {
   });
 
   app.get("/brands/dormant-and-dead", (c) =>
-    htmlPage(c, "", () => dormantAndDeadPage(c.env.DB, originOf(c))),
+    c.redirect("/brands/dormant-and-defunct", 301),
+  );
+
+  app.get("/brands/dormant-and-defunct", (c) =>
+    htmlPage(c, "", () => dormantAndDefunctPage(c.env.DB, originOf(c))),
   );
 
   app.get("/sitemap.xml", (c) =>
@@ -238,7 +247,7 @@ export function createRegistryApp(): Hono<Env> {
         }</url>`;
       const urls = [
         url("/brands"),
-        url("/brands/dormant-and-dead"),
+        url("/brands/dormant-and-defunct"),
         url(`/group/${INDEPENDENT_SLUG}`),
         ...rows.map((r) => url(`/${r.kind}/${r.slug}`, r.updated_at)),
       ];

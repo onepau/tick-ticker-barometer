@@ -13,6 +13,13 @@ export * from './slug.ts';
 export const REGISTRY_ORIGIN = "https://prices.tick-ticker.com";
 
 export type BrandStatus = "active" | "dormant" | "dead" | "revived";
+/** Status as shown publicly: the database keeps 'dead', the site and the feed say 'defunct'. */
+export type PublicBrandStatus = "active" | "dormant" | "defunct" | "revived";
+export const toPublicStatus = (s: BrandStatus | null): PublicBrandStatus | null =>
+  s === "dead" ? "defunct" : s;
+export const fromPublicStatus = (s: string): BrandStatus | null =>
+  s === "defunct" ? "dead" : (["active", "dormant", "revived"] as string[]).includes(s) ? (s as BrandStatus) : null;
+
 export type BrandAliasSource = "gphg" | "onlywatch" | "manual";
 
 export interface GroupRow {
@@ -82,7 +89,7 @@ export interface BrandFeedItem {
   slug: string;
   name: string;
   group: { id: number; slug: string; name: string } | null;
-  status: BrandStatus | null;
+  status: PublicBrandStatus | null;
   url: string;
   /** Price page URL; null until the price pages ship (phase D). */
   price_url: string | null;
@@ -133,7 +140,7 @@ export function toBrandFeedItem(
       row.group_id != null && row.group_slug != null && row.group_name != null
         ? { id: row.group_id, slug: row.group_slug, name: row.group_name }
         : null,
-    status: row.status,
+    status: toPublicStatus(row.status),
     url: brandUrl(row.slug, origin),
     price_url: null,
   };
@@ -271,7 +278,7 @@ export interface BrandDirectoryFilter {
   status?: BrandStatus | "unknown";
   /** A group slug, or "independent" for brands without a group. */
   group?: string;
-  /** Restrict to these statuses (the dormant-and-dead hub). */
+  /** Restrict to these statuses (the dormant-and-defunct hub). */
   statuses?: BrandStatus[];
 }
 
@@ -344,17 +351,57 @@ export async function listBrandAliases(
   return results;
 }
 
-/** Slug and last-modified date of every brand and group, for the sitemap. */
+/** The facts that make a brand page worth indexing. */
+export interface BrandFactFields {
+  group_id: number | null;
+  founded_year: number | null;
+  dissolved_year: number | null;
+  status: BrandStatus | null;
+  hq_city: string | null;
+  hq_country: string | null;
+  website: string | null;
+  wikidata_id: string | null;
+}
+
+/**
+ * True when a brand has nothing beyond its name: no group, founding or dissolution year,
+ * status, headquarters, website, Wikidata id or people. The single definition behind
+ * noindex on the brand page and its absence from the sitemap, so a brand becomes
+ * indexable automatically once it has any fact.
+ */
+export function isNameOnly(brand: BrandFactFields, peopleCount: number): boolean {
+  return (
+    peopleCount === 0 &&
+    brand.group_id == null &&
+    brand.founded_year == null &&
+    brand.dissolved_year == null &&
+    brand.status == null &&
+    brand.hq_city == null &&
+    brand.hq_country == null &&
+    brand.website == null &&
+    brand.wikidata_id == null
+  );
+}
+
+/** Slug and last-modified date of every indexable brand and every group, for the sitemap. */
 export async function listSitemapRows(
   db: D1Database,
 ): Promise<{ kind: "brand" | "group"; slug: string; updated_at: string }[]> {
-  const { results } = await db
+  const { results: brands } = await db
     .prepare(
-      `SELECT 'brand' AS kind, slug, updated_at FROM brands
-       UNION ALL
-       SELECT 'group' AS kind, slug, updated_at FROM groups
-       ORDER BY kind, slug`,
+      `SELECT b.slug, b.updated_at, b.group_id, b.founded_year, b.dissolved_year, b.status,
+              b.hq_city, b.hq_country, b.website, b.wikidata_id,
+              (SELECT COUNT(*) FROM brand_people p WHERE p.brand_id = b.id) AS people_count
+         FROM brands b ORDER BY b.slug`,
     )
-    .all<{ kind: "brand" | "group"; slug: string; updated_at: string }>();
-  return results;
+    .all<BrandFactFields & { slug: string; updated_at: string; people_count: number }>();
+  const { results: groups } = await db
+    .prepare(`SELECT slug, updated_at FROM groups ORDER BY slug`)
+    .all<{ slug: string; updated_at: string }>();
+  return [
+    ...brands
+      .filter((b) => !isNameOnly(b, b.people_count))
+      .map((b) => ({ kind: "brand" as const, slug: b.slug, updated_at: b.updated_at })),
+    ...groups.map((g) => ({ kind: "group" as const, slug: g.slug, updated_at: g.updated_at })),
+  ];
 }
