@@ -9,8 +9,8 @@
 
 export * from './slug.ts';
 
-/** Public origin of the registry Worker. TODO: confirm the hostname before launch. */
-export const REGISTRY_ORIGIN = "https://registry.tick-ticker.com";
+/** Default public origin of the registry Worker (shared with the price Worker); the Worker's PUBLIC_ORIGIN var overrides it. */
+export const REGISTRY_ORIGIN = "https://prices.tick-ticker.com";
 
 export type BrandStatus = "active" | "dormant" | "dead" | "revived";
 export type BrandAliasSource = "gphg" | "onlywatch" | "manual";
@@ -105,10 +105,10 @@ export interface Feed<T> {
   items: T[];
 }
 
-export const brandUrl = (slug: string): string =>
-  `${REGISTRY_ORIGIN}/brand/${slug}`;
-export const groupUrl = (slug: string): string =>
-  `${REGISTRY_ORIGIN}/group/${slug}`;
+export const brandUrl = (slug: string, origin: string = REGISTRY_ORIGIN): string =>
+  `${origin}/brand/${slug}`;
+export const groupUrl = (slug: string, origin: string = REGISTRY_ORIGIN): string =>
+  `${origin}/group/${slug}`;
 
 /** Row shape returned by listBrandFeedRows: a brand joined to its group. */
 export interface BrandFeedRow {
@@ -121,7 +121,10 @@ export interface BrandFeedRow {
   group_name: string | null;
 }
 
-export function toBrandFeedItem(row: BrandFeedRow): BrandFeedItem {
+export function toBrandFeedItem(
+  row: BrandFeedRow,
+  origin: string = REGISTRY_ORIGIN,
+): BrandFeedItem {
   return {
     id: row.id,
     slug: row.slug,
@@ -131,15 +134,16 @@ export function toBrandFeedItem(row: BrandFeedRow): BrandFeedItem {
         ? { id: row.group_id, slug: row.group_slug, name: row.group_name }
         : null,
     status: row.status,
-    url: brandUrl(row.slug),
+    url: brandUrl(row.slug, origin),
     price_url: null,
   };
 }
 
 export function toGroupFeedItem(
   row: Omit<GroupFeedItem, "url">,
+  origin: string = REGISTRY_ORIGIN,
 ): GroupFeedItem {
-  return { ...row, url: groupUrl(row.slug) };
+  return { ...row, url: groupUrl(row.slug, origin) };
 }
 
 export function feed<T>(items: T[], now: Date = new Date()): Feed<T> {

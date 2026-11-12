@@ -1,6 +1,6 @@
 # Registry Worker
 
-Public brand registry (working hostname `registry.tick-ticker.com`, not confirmed). Binds
+Public brand registry (working hostname `prices.tick-ticker.com`, not confirmed). Binds
 the same D1 database as `baromontres` but, unlike it, is public. Not deployed yet.
 
 ## Feed
@@ -29,7 +29,7 @@ Server-rendered HTML, English only, no client script, no `hreflang`. Code in `sr
 
 Unknown slugs get an HTML 404 (`/api/*` keeps JSON). Upper-case slugs 301 to lower case,
 as on GPHG. Pages go through the Cache API for five minutes, keyed on path plus the two
-filter parameters. Canonical URLs use `SITE_ORIGIN` (a var) or, by default,
+filter parameters. Canonical URLs use `PUBLIC_ORIGIN` (a var) or, by default,
 `REGISTRY_ORIGIN` in `packages/shared/src/registry.ts`; both are the working hostname
 until Paul confirms it.
 

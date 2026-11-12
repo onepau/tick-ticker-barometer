@@ -1,5 +1,5 @@
 /**
- * Routes of the public brand registry Worker (working hostname registry.tick-ticker.com).
+ * Routes of the public brand registry Worker (working hostname prices.tick-ticker.com).
  *
  * Serves the registry feed that the GPHG, Only Watch and blog sites link from:
  *   GET /api/registry/v1/brands.json
@@ -34,7 +34,7 @@ import {
 export interface RegistryEnv {
   DB: D1Database;
   /** Public origin for canonical URLs and the sitemap; defaults to REGISTRY_ORIGIN. */
-  SITE_ORIGIN?: string;
+  PUBLIC_ORIGIN?: string;
 }
 
 type Env = { Bindings: RegistryEnv };
@@ -99,7 +99,7 @@ const HTML_HEADERS = {
   "X-Content-Type-Options": "nosniff",
 };
 
-const originOf = (c: Context<Env>): string => c.env.SITE_ORIGIN ?? REGISTRY_ORIGIN;
+const originOf = (c: Context<Env>): string => c.env.PUBLIC_ORIGIN ?? REGISTRY_ORIGIN;
 
 /**
  * Serve a page through the Cache API. `keyQuery` is the already-normalised query string
@@ -163,13 +163,17 @@ export function createRegistryApp(): Hono<Env> {
 
   app.get("/api/registry/v1/brands.json", (c) =>
     cachedJson(c, async () =>
-      feed((await listBrandFeedRows(c.env.DB)).map(toBrandFeedItem)),
+      feed((await listBrandFeedRows(c.env.DB)).map((r) =>
+        toBrandFeedItem(r, originOf(c)),
+      )),
     ),
   );
 
   app.get("/api/registry/v1/groups.json", (c) =>
     cachedJson(c, async () =>
-      feed((await listGroupFeedRows(c.env.DB)).map(toGroupFeedItem)),
+      feed((await listGroupFeedRows(c.env.DB)).map((r) =>
+        toGroupFeedItem(r, originOf(c)),
+      )),
     ),
   );
 

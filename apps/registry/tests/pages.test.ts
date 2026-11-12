@@ -22,7 +22,7 @@ function seed(t: TestD1): void {
   `);
 }
 
-const ORIGIN = "https://registry.tick-ticker.com";
+const ORIGIN = "https://prices.tick-ticker.com";
 
 describe("registry pages", () => {
   let t: TestD1;
@@ -276,11 +276,11 @@ describe("registry pages", () => {
       );
     });
 
-    it("uses SITE_ORIGIN when set", async () => {
+    it("uses PUBLIC_ORIGIN when set", async () => {
       const res = await createRegistryApp().request(
         "/sitemap.xml",
         {},
-        { DB: t.db, SITE_ORIGIN: "https://example.test" },
+        { DB: t.db, PUBLIC_ORIGIN: "https://example.test" },
       );
       expect(await res.text()).toContain(
         "<loc>https://example.test/brands</loc>",
