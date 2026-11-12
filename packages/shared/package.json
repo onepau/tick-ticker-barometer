@@ -8,18 +8,20 @@
     ".": "./src/index.ts",
     "./schema": "./src/schema.ts",
     "./queries": "./src/queries.ts",
-    "./api": "./src/api.ts"
+    "./api": "./src/api.ts",
+    "./registry": "./src/registry.ts",
+    "./slug": "./src/slug.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "hono": "^4.6.10"
+    "hono": "^4.12.25"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241112.0",
     "typescript": "^5.6.3",
-    "vitest": "^2.1.8"
+    "vitest": "^3.2.6"
   }
 }

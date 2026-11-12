@@ -1,0 +1,63 @@
+# List-price capture Worker (unit 6). Fetches official list prices from brand and
+# authorised-retailer product pages, stores an HTML extract of each page in R2 as
+# evidence, and accepts Paul's manual captures from the bookmarklet.
+# Not deployed. Needs, before the first deploy (see README.md):
+#   - the R2 bucket below created,
+#   - the secrets RUN_TOKEN and CAPTURE_TOKEN set (wrangler secret put …),
+#   - Cloudflare Access on prices.tick-ticker.com/capture.
+name = "tick-ticker-prices"
+main = "src/index.ts"
+compatibility_date = "2024-11-12"
+compatibility_flags = ["nodejs_compat"]
+
+# No workers.dev URL. Custom domain chosen by Paul on 9 November 2026; put /capture
+# behind Cloudflare Access (see docs/plans/u8-deploy-runbook.md).
+workers_dev = false
+# Shared hostname (Paul, 12 November 2026): the registry Worker owns the custom domain
+# prices.tick-ticker.com; this Worker takes only its own paths through zone routes, which
+# take precedence over the custom domain. Do not deploy before the 1 December redeploy
+# is done and docs/plans/u3-cutover-runbook.md is being followed: deploying this removes
+# this Worker's custom domain.
+routes = [
+  { pattern = "prices.tick-ticker.com/capture*", zone_name = "tick-ticker.com" },
+  { pattern = "prices.tick-ticker.com/bookmarklet.txt", zone_name = "tick-ticker.com" },
+  { pattern = "prices.tick-ticker.com/health", zone_name = "tick-ticker.com" },
+  { pattern = "prices.tick-ticker.com/api/capture*", zone_name = "tick-ticker.com" },
+  { pattern = "prices.tick-ticker.com/api/run*", zone_name = "tick-ticker.com" },
+  { pattern = "prices.tick-ticker.com/api/report*", zone_name = "tick-ticker.com" },
+]
+
+[triggers]
+# Workers Free plan (confirmed by Paul, 9 November 2026): 10 ms CPU and 50 outgoing
+# requests per invocation, at most 5 cron triggers per account. So this Worker uses
+# ONE trigger, every 5 minutes, and src/calendar.ts decides whether a capture period
+# is open (monthly on the 1st, 29 December 2026, daily 1-20 January 2027). Outside a
+# period a firing exits without touching D1. Each working firing handles one domain
+# (robots.txt plus up to 5 pages); 561 pages need about 115 firings, about 10 hours,
+# so a daily run has 2.5 times the firings it needs (288 a day). If you change this
+# expression, change CRON_INTERVAL_MS in src/index.ts and the sizing in the README.
+crons = ["*/5 * * * *"]
+
+[vars]
+# Public origin of this Worker, used by the bookmarklet and the capture page.
+PUBLIC_ORIGIN = "https://prices.tick-ticker.com"
+# Per cron invocation (Workers Free sizing; on Workers Paid: 40 requests, all
+# domains, 600000 ms). Requests include robots.txt.
+MAX_REQUESTS_PER_INVOCATION = "6"
+MAX_HOSTS_PER_INVOCATION = "1"
+INVOCATION_BUDGET_MS = "120000"
+# Minimum gap between two requests to the same domain (milliseconds).
+MIN_DELAY_MS = "3000"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "baromontres"
+database_id = "40793010-0c4d-4a80-a1af-963a50273fc5"
+migrations_dir = "../../migrations"
+
+[[r2_buckets]]
+binding = "EVIDENCE"
+bucket_name = "tick-ticker-price-evidence"
+
+[observability]
+enabled = true

@@ -1,0 +1,28 @@
+# Public brand registry and price pages (unit 1 onwards). Unlike `baromontres`, this
+# Worker is public and indexable; it shares the `baromontres` D1 database and only
+# reads the registry and price tables.
+name = "tick-ticker-registry"
+main = "src/index.ts"
+compatibility_date = "2024-11-12"
+compatibility_flags = ["nodejs_compat"]
+
+# No workers.dev URL: the Worker is reached through its own hostname only.
+workers_dev = false
+
+# prices.tick-ticker.com is shared with the price Worker by path (see
+# docs/plans/u3-cutover-runbook.md): the price Worker has zone routes for its own paths,
+# this Worker owns the custom domain and so serves everything else. Do not deploy until
+# the price Worker has been redeployed with its routes.
+routes = [{ pattern = "prices.tick-ticker.com", custom_domain = true }]
+
+[vars]
+PUBLIC_ORIGIN = "https://prices.tick-ticker.com"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "baromontres"
+database_id = "40793010-0c4d-4a80-a1af-963a50273fc5"
+migrations_dir = "../../migrations"
+
+[observability]
+enabled = true
