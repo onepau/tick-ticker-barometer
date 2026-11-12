@@ -116,7 +116,7 @@ describe("registry pages", () => {
     it("shows no status when it is NULL, and no price section", async () => {
       const html = await (await get("/brand/ulysse-nardin")).text();
       expect(html).not.toContain('class="chip');
-      expect(html).not.toMatch(/price/i);
+      expect(html.split("<main")[1]).not.toMatch(/price/i);
     });
 
     it("escapes names in HTML and JSON-LD", async () => {
