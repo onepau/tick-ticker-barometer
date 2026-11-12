@@ -62,7 +62,7 @@ describe("registry feed routes", () => {
       name: "Omega",
       group: { id: 1, slug: "swatch-group", name: "The Swatch Group" },
       status: "active",
-      url: "https://registry.tick-ticker.com/brand/omega",
+      url: "https://prices.tick-ticker.com/brand/omega",
       price_url: null,
     });
     expect(body.items[2]).toMatchObject({
@@ -90,7 +90,7 @@ describe("registry feed routes", () => {
         name: "Richemont",
         wikidata_id: null,
         website: null,
-        url: "https://registry.tick-ticker.com/group/richemont",
+        url: "https://prices.tick-ticker.com/group/richemont",
         brand_count: 0,
       },
       {
@@ -99,7 +99,7 @@ describe("registry feed routes", () => {
         name: "The Swatch Group",
         wikidata_id: "Q694323",
         website: "https://www.swatchgroup.com",
-        url: "https://registry.tick-ticker.com/group/swatch-group",
+        url: "https://prices.tick-ticker.com/group/swatch-group",
         brand_count: 2,
       },
     ]);

@@ -13,7 +13,19 @@ compatibility_flags = ["nodejs_compat"]
 # No workers.dev URL. Custom domain chosen by Paul on 9 November 2026; put /capture
 # behind Cloudflare Access (see docs/plans/u8-deploy-runbook.md).
 workers_dev = false
-routes = [{ pattern = "prices.tick-ticker.com", custom_domain = true }]
+# Shared hostname (Paul, 12 November 2026): the registry Worker owns the custom domain
+# prices.tick-ticker.com; this Worker takes only its own paths through zone routes, which
+# take precedence over the custom domain. Do not deploy before the 1 December redeploy
+# is done and docs/plans/u3-cutover-runbook.md is being followed: deploying this removes
+# this Worker's custom domain.
+routes = [
+  { pattern = "prices.tick-ticker.com/capture*", zone_name = "tick-ticker.com" },
+  { pattern = "prices.tick-ticker.com/bookmarklet.txt", zone_name = "tick-ticker.com" },
+  { pattern = "prices.tick-ticker.com/health", zone_name = "tick-ticker.com" },
+  { pattern = "prices.tick-ticker.com/api/capture*", zone_name = "tick-ticker.com" },
+  { pattern = "prices.tick-ticker.com/api/run*", zone_name = "tick-ticker.com" },
+  { pattern = "prices.tick-ticker.com/api/report*", zone_name = "tick-ticker.com" },
+]
 
 [triggers]
 # Workers Free plan (confirmed by Paul, 9 November 2026): 10 ms CPU and 50 outgoing

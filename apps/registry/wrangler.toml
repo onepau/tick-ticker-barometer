@@ -9,10 +9,14 @@ compatibility_flags = ["nodejs_compat"]
 # No workers.dev URL: the Worker is reached through its own hostname only.
 workers_dev = false
 
-# TODO(unit 3): confirm the hostname (working name registry.tick-ticker.com, also the
-# REGISTRY_ORIGIN constant in packages/shared/src/registry.ts), then add:
-# routes = [{ pattern = "registry.tick-ticker.com", custom_domain = true }]
-# Not deployed yet. The Cache API only takes effect on a custom domain.
+# prices.tick-ticker.com is shared with the price Worker by path (see
+# docs/plans/u3-cutover-runbook.md): the price Worker has zone routes for its own paths,
+# this Worker owns the custom domain and so serves everything else. Do not deploy until
+# the price Worker has been redeployed with its routes.
+routes = [{ pattern = "prices.tick-ticker.com", custom_domain = true }]
+
+[vars]
+PUBLIC_ORIGIN = "https://prices.tick-ticker.com"
 
 [[d1_databases]]
 binding = "DB"
