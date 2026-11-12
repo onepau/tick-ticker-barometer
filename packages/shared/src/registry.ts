@@ -246,3 +246,111 @@ export async function getWatchReferenceBySlug(
     .bind(slug)
     .first<WatchReferenceRow>();
 }
+
+// ── Page queries (unit 3) ────────────────────────────────────────────────────
+
+/** A brand joined to its group, as listed on /brands, /group/<slug> and the hub. */
+export interface BrandDirectoryRow {
+  id: number;
+  slug: string;
+  name: string;
+  status: BrandStatus | null;
+  founded_year: number | null;
+  dissolved_year: number | null;
+  group_id: number | null;
+  group_slug: string | null;
+  group_name: string | null;
+}
+
+export interface BrandDirectoryFilter {
+  /** One status, or "unknown" for brands whose status is NULL. */
+  status?: BrandStatus | "unknown";
+  /** A group slug, or "independent" for brands without a group. */
+  group?: string;
+  /** Restrict to these statuses (the dormant-and-dead hub). */
+  statuses?: BrandStatus[];
+}
+
+export async function listBrandDirectory(
+  db: D1Database,
+  filter: BrandDirectoryFilter = {},
+): Promise<BrandDirectoryRow[]> {
+  const where: string[] = [];
+  const binds: unknown[] = [];
+  if (filter.status === "unknown") where.push("b.status IS NULL");
+  else if (filter.status) {
+    where.push("b.status = ?");
+    binds.push(filter.status);
+  }
+  if (filter.group === "independent") where.push("b.group_id IS NULL");
+  else if (filter.group) {
+    where.push("g.slug = ?");
+    binds.push(filter.group);
+  }
+  if (filter.statuses?.length) {
+    where.push(`b.status IN (${filter.statuses.map(() => "?").join(",")})`);
+    binds.push(...filter.statuses);
+  }
+  const { results } = await db
+    .prepare(
+      `SELECT b.id, b.slug, b.name, b.status, b.founded_year, b.dissolved_year,
+              g.id AS group_id, g.slug AS group_slug, g.name AS group_name
+         FROM brands b
+         LEFT JOIN groups g ON g.id = b.group_id
+        ${where.length ? "WHERE " + where.join(" AND ") : ""}
+        ORDER BY b.name COLLATE NOCASE, b.slug`,
+    )
+    .bind(...binds)
+    .all<BrandDirectoryRow>();
+  return results;
+}
+
+export async function getGroupBySlug(
+  db: D1Database,
+  slug: string,
+): Promise<GroupRow | null> {
+  return db
+    .prepare(`SELECT * FROM groups WHERE slug = ?`)
+    .bind(slug)
+    .first<GroupRow>();
+}
+
+export async function getGroupById(
+  db: D1Database,
+  id: number,
+): Promise<GroupRow | null> {
+  return db.prepare(`SELECT * FROM groups WHERE id = ?`).bind(id).first<GroupRow>();
+}
+
+export async function listGroups(db: D1Database): Promise<GroupRow[]> {
+  const { results } = await db
+    .prepare(`SELECT * FROM groups ORDER BY name COLLATE NOCASE`)
+    .all<GroupRow>();
+  return results;
+}
+
+export async function listBrandAliases(
+  db: D1Database,
+  brandId: number,
+): Promise<BrandAliasRow[]> {
+  const { results } = await db
+    .prepare(`SELECT * FROM brand_aliases WHERE brand_id = ? ORDER BY source, alias`)
+    .bind(brandId)
+    .all<BrandAliasRow>();
+  return results;
+}
+
+/** Slug and last-modified date of every brand and group, for the sitemap. */
+export async function listSitemapRows(
+  db: D1Database,
+): Promise<{ kind: "brand" | "group"; slug: string; updated_at: string }[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT 'brand' AS kind, slug, updated_at FROM brands
+       UNION ALL
+       SELECT 'group' AS kind, slug, updated_at FROM groups
+       ORDER BY kind, slug`,
+    )
+    .all<{ kind: "brand" | "group"; slug: string; updated_at: string }>();
+  return results;
+}

@@ -14,6 +14,25 @@ Both are wrapped as `{ version, generated_at, count, items }` and sent with
 `Cache-Control: public, max-age=3600`, through the Cache API on the custom domain.
 Consumers should use the precomputed `slug` and `url` rather than slugifying names.
 
+## Pages
+
+Server-rendered HTML, English only, no client script, no `hreflang`. Code in `src/render/`
+(layout and CSS adapted from the GPHG Index); routes in `src/app.ts`.
+
+| Path | Contents |
+| ---- | -------- |
+| `/brand/<slug>` | Facts panel (group, founded, dissolved, status, headquarters, key people, site, Wikidata), links to the brand's GPHG and Only Watch pages (from `brand_aliases`), `Organization` + `BreadcrumbList` JSON-LD. Empty facts are left out; a name-only brand gets a short note. Price section is a stub (`priceSectionHtml`) for unit 10. |
+| `/group/<slug>` | A group and its brands. `/group/independent` lists brands with no group. |
+| `/brands` | A–Z index. Filters `?status=` (active, dormant, dead, revived, unknown) and `?group=` (a group slug or `independent`). Filtered views are `noindex` and canonical to `/brands`. |
+| `/brands/dormant-and-dead` | Brands with status dormant, dead or revived, linking to the journal posts `gphg-dead-brands` and `gphg-comeback-brands`. |
+| `/sitemap.xml`, `/robots.txt` | Every brand and group URL, plus the three list pages. |
+
+Unknown slugs get an HTML 404 (`/api/*` keeps JSON). Upper-case slugs 301 to lower case,
+as on GPHG. Pages go through the Cache API for five minutes, keyed on path plus the two
+filter parameters. Canonical URLs use `SITE_ORIGIN` (a var) or, by default,
+`REGISTRY_ORIGIN` in `packages/shared/src/registry.ts`; both are the working hostname
+until Paul confirms it.
+
 ## Slugs
 
 `slugifyBrand` (`packages/shared/src/slug.ts`) reproduces the live GPHG slug for all
