@@ -25,3 +25,4 @@ Twelve pages, two per new brand, read on 9 November 2026 at 13:27 UTC by the uni
 - **Oris POR**: the CSV lists this reference as `POR` for CH, FR and UK and 2,400 for the US. The adapter records `price_on_request` when the product's price block is empty and the page shows the "not available online" message. This is a reading of the page, not Oris's own words "on request"; worth a look.
 - **Grand Seiko**: SBGX363's page also shows "Jan.2027 Release Date" next to the price, so it is a model announced but not yet on sale; the price is the announced one. The SBGD201 CH page does show a price (CHF 63,100.00); the US page has none.
 - **Longines** pages can show OutOfStock in their data while still printing a price; the price is kept.
+- **Decision (Paul, 12 Nov 2026):** Oris "not available online" is never price on request. The adapter now records it as `unavailable` (message "not available online").

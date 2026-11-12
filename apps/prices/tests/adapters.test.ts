@@ -186,10 +186,10 @@ describe('Oris', () => {
     expect(run(oris, 'oris-0173377074053-ch.html', REF, 'CH')).toMatchObject({ status: 'ok', amountMinor: 245_000, priceText: "CHF 2'450.00", taxLabel: null, refSeen: REF });
     expect(run(oris, 'oris-0173377074053-us.html', REF, 'US')).toMatchObject({ status: 'ok', amountMinor: 290_000 });
   });
-  it('4064: price on request in CH (not available online), 2,400 USD in the US', () => {
-    const por = run(oris, 'oris-0173377074064-ch.html', '01 733 7707 4064-07 8 20 18', 'CH');
-    expect(por).toMatchObject({ status: 'price_on_request', amountMinor: null });
-    expect(por.priceText).toMatch(/nicht verfügbar/);
+  it('4064: unavailable in CH (not available online, never price on request), 2,400 USD in the US', () => {
+    const na = run(oris, 'oris-0173377074064-ch.html', '01 733 7707 4064-07 8 20 18', 'CH');
+    expect(na).toMatchObject({ status: 'unavailable', amountMinor: null, message: 'not available online' });
+    expect(na.priceText).toMatch(/nicht verfügbar/);
     expect(run(oris, 'oris-0173377074064-us.html', '01 733 7707 4064-07 8 20 18', 'US')).toMatchObject({ status: 'ok', amountMinor: 240_000 });
   });
   it('refuses another reference and the wrong currency', () => {
