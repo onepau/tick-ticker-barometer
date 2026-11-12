@@ -10,7 +10,9 @@
     "seed:build": "node scripts/build-seed.ts",
     "seed:wikidata": "node scripts/wikidata-seed.ts",
     "db:migrate:local": "wrangler d1 migrations apply baromontres --local",
-    "db:seed:local": "wrangler d1 execute baromontres --local --file=seed/registry_seed.sql"
+    "db:seed:local": "wrangler d1 execute baromontres --local --file=seed/registry_seed.sql",
+    "db:review:local": "wrangler d1 execute baromontres --local --file=seed/registry_review.sql",
+    "seed:review": "node scripts/review-to-sql.ts"
   },
   "dependencies": {
     "@baromontres/shared": "workspace:*",
