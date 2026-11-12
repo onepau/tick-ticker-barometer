@@ -6,9 +6,10 @@
 // prices of strap options in a carousel; those are ignored (only the stage block
 // is read). The reference is read from the page title ("Divers Sixty-Five - 01 733
 // 7707 4053-07 8 20 18 | Oris").
-// Price on request: models "not available online" have an empty stage-price and a
+// Not available online: such models have an empty stage-price and a
 // p.stage-button-info message ("Dieses Modell ist online nicht verfügbar...", in
-// the market's language); they are recorded as price_on_request, as in the CSV.
+// the market's language). Oris does not use "price on request", so these are
+// recorded as unavailable, never price_on_request (Paul, 12 Nov 2026).
 // No tax wording on the product page.
 // robots.txt (6 Nov 2026): Allow only the locale prefixes above, then Disallow: /.
 
@@ -34,11 +35,11 @@ export const oris: Adapter = {
     const info = match1(html, /(<p class="stage-button-info[^"]*"[^>]*>[\s\S]*?<\/p>)/);
     if (!/itemprop="price"/.test(stage)) {
       if (info !== null) {
-        return { status: "price_on_request", amountMinor: null, currency, priceText: textOf(info), taxLabel: null, refSeen, evidenceParts: [stage, info] };
+        return { status: "unavailable", amountMinor: null, currency, priceText: textOf(info), taxLabel: null, refSeen, evidenceParts: [stage, info], message: "not available online" };
       }
       return notFound(currency, "no price and no 'not available online' message", [stage], { refSeen });
     }
-    return parseStorefront(html, ref.refCode, currency, {
+    const result = parseStorefront(html, ref.refCode, currency, {
       offer: () => ({
         sku: refSeen,
         price: match1(stage, /<meta itemprop="price" content="([^"]*)"/),
@@ -49,5 +50,7 @@ export const oris: Adapter = {
       // The block minus its meta tags is the text a shopper sees.
       visible: () => stage,
     });
+    // Oris never shows "price on request": if the shared parser reads one, record it as unavailable.
+    return result.status === "price_on_request" ? { ...result, status: "unavailable", message: result.message ?? "not available online" } : result;
   },
 };
