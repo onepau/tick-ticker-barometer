@@ -10,7 +10,8 @@
     "./queries": "./src/queries.ts",
     "./api": "./src/api.ts",
     "./registry": "./src/registry.ts",
-    "./slug": "./src/slug.ts"
+    "./slug": "./src/slug.ts",
+    "./price-public": "./src/price-public.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

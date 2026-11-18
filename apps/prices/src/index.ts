@@ -1,6 +1,7 @@
 import { createApp } from "./app.ts";
 import { numVar, type PricesEnv } from "./env.ts";
 import { runCapture } from "./run.ts";
+import { runFxFetch } from "./fx.ts";
 
 const app = createApp();
 
@@ -18,6 +19,13 @@ export default {
     const maxHosts = env.MAX_HOSTS_PER_INVOCATION
       ? numVar(env.MAX_HOSTS_PER_INVOCATION, 1)
       : undefined;
+    // ECB reference rates, once a day after 16:30 CET (see fx.ts). Separate from the
+    // capture so a failure on either side cannot affect the other.
+    ctx.waitUntil(
+      runFxFetch(env.DB, env.EVIDENCE, { now: () => new Date(event.scheduledTime) })
+        .then((o) => o.status !== "skipped" && console.log(JSON.stringify({ fx: o })))
+        .catch((e) => console.error("fx fetch failed", e)),
+    );
     ctx.waitUntil(
       runCapture(env.DB, env.EVIDENCE, {
         trigger: "cron",

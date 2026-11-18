@@ -17,6 +17,10 @@ routes = [{ pattern = "prices.tick-ticker.com", custom_domain = true }]
 
 [vars]
 PUBLIC_ORIGIN = "https://prices.tick-ticker.com"
+# Feature flag for every public price page, price section, sitemap entry and feed URL.
+# "0" = off (price routes return 404). Paul sets "1" once the first January increases
+# are captured; each brand also needs brands.prices_public = 1.
+PRICES_PUBLIC = "0"
 
 [[d1_databases]]
 binding = "DB"

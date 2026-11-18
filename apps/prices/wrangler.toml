@@ -32,7 +32,8 @@ routes = [
 # requests per invocation, at most 5 cron triggers per account. So this Worker uses
 # ONE trigger, every 5 minutes, and src/calendar.ts decides whether a capture period
 # is open (monthly on the 1st, 29 December 2026, daily 1-20 January 2027). Outside a
-# period a firing exits without touching D1. Each working firing handles one domain
+# period a firing exits without touching D1 (the ECB rate fetch in src/fx.ts runs
+# separately: one request a day after 15:30 UTC on weekdays, guarded by an R2 marker). Each working firing handles one domain
 # (robots.txt plus up to 5 pages); 561 pages need about 115 firings, about 10 hours,
 # so a daily run has 2.5 times the firings it needs (288 a day). If you change this
 # expression, change CRON_INTERVAL_MS in src/index.ts and the sizing in the README.
