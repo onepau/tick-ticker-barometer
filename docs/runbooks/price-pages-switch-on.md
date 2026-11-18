@@ -14,7 +14,9 @@ route is a 404.
 
 ```bash
 # Migration 0010 (editable intro text). Needs the owner's go-ahead.
-cd apps/registry && npx wrangler d1 migrations apply baromontres --remote
+# The remote database has no d1_migrations table (0001-0004 were applied with
+# execute --file), so never use `migrations apply --remote`: it would re-run 0001.
+npx wrangler d1 execute baromontres --remote --yes --file migrations/0010_site_text.sql
 # Deploy with the flag still "0", then check these return 404:
 #   /prices  /prices/methodology  /prices/increases-2027  /prices/dataset.csv
 #   /api/registry/v1/references.json  and that /sitemap.xml has no "/prices" URLs
