@@ -24,7 +24,7 @@ const FONT_CSS =
 
 const NAV = [
   { href: "/brands", label: "Brands" },
-  { href: "/brands/dormant-and-dead", label: "Dormant and dead" },
+  { href: "/brands/dormant-and-defunct", label: "Dormant and defunct" },
 ];
 
 export interface Crumb {
