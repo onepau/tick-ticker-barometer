@@ -569,3 +569,181 @@ export async function getSiteText(db: D1Database, key: string): Promise<string |
     return null;
   }
 }
+
+// ── Sitemap, feed and dataset (unit 11) ──────────────────────────────────────
+
+/** A public reference page and the date of its latest publishable snapshot. */
+export interface PriceSitemapRow {
+  slug: string;
+  lastmod: string;
+}
+
+/** Reference price pages for the sitemap: public brands, at least one 'ok' price; lastmod = latest snapshot. */
+export async function listPriceSitemapRows(db: D1Database): Promise<PriceSitemapRow[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT r.slug, MAX(s.captured_at) AS lastmod
+         FROM watch_references r
+         JOIN brands b ON b.id = r.brand_id AND b.prices_public = 1
+         JOIN price_snapshots_countable s ON s.reference_id = r.id AND s.status <> 'error'
+        GROUP BY r.id
+       HAVING SUM(s.status = 'ok') > 0
+        ORDER BY r.slug`,
+    )
+    .all<PriceSitemapRow>();
+  return results;
+}
+
+/** One reference of the registry feed (references.json). */
+export interface ReferenceFeedRow {
+  id: number;
+  slug: string;
+  brand_slug: string;
+  brand_name: string;
+  ref_code: string;
+  family: string | null;
+  name: string | null;
+  markets: string;
+  last_checked: string;
+}
+
+export async function listReferenceFeedRows(db: D1Database): Promise<ReferenceFeedRow[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT r.id, r.slug, b.slug AS brand_slug, b.name AS brand_name, r.ref_code, r.family, r.name,
+              GROUP_CONCAT(DISTINCT s.market_code) AS markets, MAX(s.captured_at) AS last_checked
+         FROM watch_references r
+         JOIN brands b ON b.id = r.brand_id AND b.prices_public = 1
+         JOIN price_snapshots_countable s ON s.reference_id = r.id AND s.status = 'ok'
+        GROUP BY r.id
+        ORDER BY r.slug`,
+    )
+    .all<ReferenceFeedRow>();
+  return results;
+}
+
+/** Slugs of the brands that have public prices, for the feed's price_url. */
+export async function listBrandSlugsWithPublicPrices(db: D1Database): Promise<Set<string>> {
+  const { results } = await db
+    .prepare(
+      `SELECT b.slug FROM brands b
+        WHERE b.prices_public = 1
+          AND EXISTS (SELECT 1 FROM watch_references r
+                        JOIN price_snapshots_countable s ON s.reference_id = r.id AND s.status = 'ok'
+                       WHERE r.brand_id = b.id)`,
+    )
+    .all<{ slug: string }>();
+  return new Set(results.map((r) => r.slug));
+}
+
+export interface DatasetRow {
+  snapshot_id: number;
+  brand_slug: string;
+  brand_name: string;
+  reference_slug: string;
+  ref_code: string;
+  reference_name: string | null;
+  market_code: MarketCode;
+  currency: string;
+  tax_included: 0 | 1;
+  status: string;
+  amount_minor: number | null;
+  captured_at: string;
+  series_last_checked: string;
+  source: SourceKey | null;
+  source_url: string | null;
+}
+
+/**
+ * The public price series, compactly: per reference × market × source, the first capture
+ * and every later change of price, currency or status (unchanged repeat checks are
+ * collapsed; `series_last_checked` says when the series was last looked at). Same rules
+ * as the pages: countable view only, no errors, public brands, at least one 'ok' price.
+ */
+export async function listDatasetRows(db: D1Database): Promise<DatasetRow[]> {
+  const { results } = await db
+    .prepare(
+      `WITH s AS (
+         SELECT x.id, x.reference_id, x.market_code, x.currency, x.amount_minor, x.status,
+                x.captured_at, x.source, x.source_url,
+                LAG(x.amount_minor) OVER w AS pa, LAG(x.status) OVER w AS ps,
+                LAG(x.currency) OVER w AS pc, ROW_NUMBER() OVER w AS rn,
+                MAX(x.captured_at) OVER (
+                  PARTITION BY x.reference_id, x.market_code, COALESCE(x.source, '')) AS series_last_checked
+           FROM price_snapshots_countable x
+          WHERE x.status <> 'error'
+         WINDOW w AS (PARTITION BY x.reference_id, x.market_code, COALESCE(x.source, '')
+                      ORDER BY x.captured_at, x.id)
+       )
+       SELECT s.id AS snapshot_id, b.slug AS brand_slug, b.name AS brand_name,
+              r.slug AS reference_slug, r.ref_code, r.name AS reference_name,
+              s.market_code, s.currency, m.tax_included, s.status, s.amount_minor,
+              s.captured_at, s.series_last_checked, s.source, s.source_url
+         FROM s
+         JOIN watch_references r ON r.id = s.reference_id
+         JOIN brands b ON b.id = r.brand_id AND b.prices_public = 1
+         JOIN price_markets m ON m.code = s.market_code
+        WHERE (s.rn = 1 OR s.ps <> s.status OR s.pc <> s.currency
+               OR COALESCE(s.pa, -1) <> COALESCE(s.amount_minor, -1))
+          AND r.id IN (SELECT reference_id FROM price_snapshots_countable WHERE status = 'ok')
+        ORDER BY b.name COLLATE NOCASE, r.ref_code, s.market_code, s.captured_at, s.id`,
+    )
+    .all<DatasetRow>();
+  return results;
+}
+
+export const DATASET_CSV_PATH = "/prices/dataset.csv";
+export const DATASET_CSV_COLUMNS = [
+  "brand_slug",
+  "brand",
+  "reference_slug",
+  "reference_code",
+  "reference_name",
+  "market",
+  "currency",
+  "amount",
+  "amount_minor",
+  "tax",
+  "status",
+  "captured_at",
+  "series_last_checked",
+  "source",
+  "source_url",
+  "license",
+] as const;
+
+/** One CSV cell: quoted when needed; text that a spreadsheet would run as a formula is neutralised. */
+export function csvCell(v: string | number | null | undefined, text = true): string {
+  if (v === null || v === undefined) return "";
+  let s = String(v);
+  if (text && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+/** Renders the dataset as CSV (CRLF line endings, header row, CC BY 4.0 in every row). */
+export function datasetCsv(rows: DatasetRow[]): string {
+  const lines = [DATASET_CSV_COLUMNS.join(",")];
+  for (const r of rows) {
+    lines.push(
+      [
+        csvCell(r.brand_slug),
+        csvCell(r.brand_name),
+        csvCell(r.reference_slug),
+        csvCell(r.ref_code),
+        csvCell(r.reference_name),
+        csvCell(r.market_code),
+        csvCell(r.currency),
+        r.amount_minor === null ? "" : (r.amount_minor / 100).toFixed(2),
+        r.amount_minor === null ? "" : String(r.amount_minor),
+        r.tax_included ? "including VAT" : "excluding sales tax",
+        csvCell(r.status),
+        csvCell(r.captured_at),
+        csvCell(r.series_last_checked),
+        csvCell(r.source),
+        csvCell(r.source_url),
+        DATASET_LICENSE_NAME,
+      ].join(","),
+    );
+  }
+  return lines.join("\r\n") + "\r\n";
+}

@@ -91,7 +91,7 @@ export interface BrandFeedItem {
   group: { id: number; slug: string; name: string } | null;
   status: PublicBrandStatus | null;
   url: string;
-  /** Price page URL; null until the price pages ship (phase D). */
+  /** Prices of this brand (its registry page, #prices); null unless prices are public for it. */
   price_url: string | null;
 }
 
@@ -128,9 +128,15 @@ export interface BrandFeedRow {
   group_name: string | null;
 }
 
+/** Where a brand's public prices live: the price section of its registry page. */
+export const brandPriceUrl = (slug: string, origin: string = REGISTRY_ORIGIN): string =>
+  `${origin}/brand/${slug}#prices`;
+
 export function toBrandFeedItem(
   row: BrandFeedRow,
   origin: string = REGISTRY_ORIGIN,
+  /** Slugs of brands with public prices; omit (or pass an empty set) while prices are off. */
+  priceSlugs: ReadonlySet<string> = new Set(),
 ): BrandFeedItem {
   return {
     id: row.id,
@@ -142,7 +148,7 @@ export function toBrandFeedItem(
         : null,
     status: toPublicStatus(row.status),
     url: brandUrl(row.slug, origin),
-    price_url: null,
+    price_url: priceSlugs.has(row.slug) ? brandPriceUrl(row.slug, origin) : null,
   };
 }
 
