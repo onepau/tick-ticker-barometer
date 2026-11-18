@@ -26,6 +26,7 @@ import {
   type GroupRow,
 } from "@baromontres/shared/registry";
 import { crumbs, escapeHtml, layout } from "./html.ts";
+import { brandPriceSection } from "./price-hub.ts";
 
 export const GPHG_ORIGIN = "https://gphg.tick-ticker.com";
 export const ONLYWATCH_ORIGIN = "https://onlywatch.tick-ticker.com";
@@ -46,6 +47,12 @@ export const HUB_STATUSES: BrandStatus[] = ["dead", "dormant", "revived"];
 
 export interface Page {
   html: string;
+}
+
+/** Per-request options the app passes to every page. */
+export interface PageOpts {
+  /** PRICES_PUBLIC is on: show the Prices link and the price section of brand pages. */
+  prices?: boolean;
 }
 
 // ── small helpers ────────────────────────────────────────────────────────────
@@ -134,11 +141,6 @@ function brandListItem(r: BrandDirectoryRow, showGroup = false): string {
 }
 
 // ── /brand/<slug> ────────────────────────────────────────────────────────────
-
-/** Where unit 10 plugs in the latest list prices; nothing is rendered while there are none. */
-function priceSectionHtml(_brand: BrandRow): string {
-  return "";
-}
 
 function factsPanel(
   brand: BrandRow,
@@ -285,6 +287,7 @@ export async function brandPage(
   db: D1Database,
   origin: string,
   slug: string,
+  opts: PageOpts = {},
 ): Promise<Page | null> {
   const brand = await getBrandBySlug(db, slug);
   if (!brand) return null;
@@ -302,12 +305,14 @@ export async function brandPage(
     lead ||
     `${brand.name} in the tick-ticker watch brand registry, with links to its records on the GPHG Index and Only Watch Index where they exist.`;
   const sparse = isNameOnly(brand, people.length);
+  // Empty while PRICES_PUBLIC is off, or when the brand has no public price.
+  const priceSection = opts.prices ? await brandPriceSection(db, brand) : "";
 
   const main = `${lead ? `<p class="lead">${escapeHtml(lead)}</p>` : ""}${
     sparse
       ? `<p class="note">The registry holds only the name of this brand so far. Founding, ownership and status are added as they are verified.</p>`
       : ""
-  }${elsewhereCards(brand, aliases)}${priceSectionHtml(brand)}`;
+  }${elsewhereCards(brand, aliases)}${priceSection}`;
 
   const body = `${crumbs([
     { name: "Brands", href: "/brands" },
@@ -328,6 +333,7 @@ export async function brandPage(
         title: `${brand.name} — watch brand`,
         description,
         canonical: `/brand/${brand.slug}`,
+        pricesNav: opts.prices,
         ogType: "profile",
         noindex: sparse,
         navCurrent: "/brands",
@@ -352,6 +358,7 @@ export async function groupPage(
   db: D1Database,
   origin: string,
   slug: string,
+  opts: PageOpts = {},
 ): Promise<Page | null> {
   const group = await getGroupBySlug(db, slug);
   const independent = !group && slug === INDEPENDENT_SLUG;
@@ -428,6 +435,7 @@ export async function groupPage(
           ? `${lead} Founding dates, status and records for each brand.`
           : `${lead} An independent listing from the tick-ticker brand registry.`,
         canonical: path,
+        pricesNav: opts.prices,
         navCurrent: "/brands",
         jsonld: [
           breadcrumbLd(origin, [
@@ -453,6 +461,7 @@ export async function brandsIndexPage(
   db: D1Database,
   origin: string,
   params: URLSearchParams,
+  opts: PageOpts = {},
 ): Promise<Page> {
   const groups = await listGroupFeedRows(db);
   const rawStatus = params.get("status") ?? "";
@@ -550,6 +559,7 @@ export async function brandsIndexPage(
         description:
           "An A–Z registry of watch brands: group, founding date, status and links to GPHG and Only Watch records.",
         canonical: "/brands",
+        pricesNav: opts.prices,
         navCurrent: "/brands",
         noindex: filtered,
         jsonld: [
@@ -579,6 +589,7 @@ const HUB_COPY: Record<string, { heading: string; blurb: string }> = {
 export async function dormantAndDefunctPage(
   db: D1Database,
   origin: string,
+  opts: PageOpts = {},
 ): Promise<Page> {
   const rows = await listBrandDirectory(db, { statuses: HUB_STATUSES });
   const sections = HUB_STATUSES.map((s) => {
@@ -613,6 +624,7 @@ export async function dormantAndDefunctPage(
         description:
           "Watch brands that have closed, gone dormant or been revived, with links to each brand's registry page and to the journal's post on the GPHG's dead brands.",
         canonical: "/brands/dormant-and-defunct",
+        pricesNav: opts.prices,
         navCurrent: "/brands/dormant-and-defunct",
         jsonld: [
           breadcrumbLd(origin, [
