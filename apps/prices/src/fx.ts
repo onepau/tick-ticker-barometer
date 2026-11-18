@@ -41,7 +41,7 @@ export function parseEcbDaily(xml: string): EcbRates | null {
   if (!date) return null;
   const rates: Record<string, number> = {};
   for (const m of xml.matchAll(/<Cube\s+currency=['"]([A-Z]{3})['"]\s+rate=['"]([0-9.]+)['"]/g)) {
-    const cur = m[1];
+    const cur = m[1]!;
     if ((FX_CURRENCIES as readonly string[]).includes(cur)) {
       const rate = Number(m[2]);
       if (Number.isFinite(rate) && rate > 0) rates[cur] = rate;
@@ -105,7 +105,7 @@ export async function runFxFetch(
   if (!parsed) return { status: "failed", reason: "unparseable" };
 
   for (const currency of FX_CURRENCIES) {
-    await upsertFxRate(db, { date: parsed.date, currency, rate: parsed.rates[currency] });
+    await upsertFxRate(db, { date: parsed.date, currency, rate: parsed.rates[currency]! });
   }
   // `stale`: the ECB still shows an earlier date (TARGET holiday, or not yet updated).
   // The marker stops further requests today either way.
