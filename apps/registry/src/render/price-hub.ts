@@ -364,9 +364,9 @@ export function methodologyPage(origin: string): Page {
     <p>Each price is stored with the date we captured it, the page it came from and an extract of that page, so every figure can be traced back. Prices are only ever added, never overwritten: a correction is a new dated entry.</p>
   </section>
   <section class="block"><h2>Sources</h2>
-    <p>The first source is the brand's own website in each market. Where a brand does not show prices on its own site (Rolex and Panerai are the two cases so far), we use a named authorised retailer instead, and the retailer is named on every page where its price appears.</p>
+    <p>The first source is the brand's own website in each market. Where a brand's website cannot be read automatically (Rolex and Panerai so far), its prices are captured by hand from the brand's own site, and a named authorised retailer's published price is used alongside. The retailer is named on every page where its price appears.</p>
     <p>The retailer rule: a retailer's price counts only once a person at tick-ticker has also opened the same reference on the brand's own site and captured it by hand. That confirms the reference exists and is in the current catalogue. Until then the retailer price is held back and not published.</p>
-    <p>We check each site's robots.txt and do not collect from sites that disallow it. Requests are slow (one at a time per site, with a pause between them) and identify themselves as tick-ticker.</p>
+    <p>Automated collection respects each site's robots.txt and does not read pages it disallows. Requests are slow (one at a time per site, with a pause between them) and identify themselves as tick-ticker.</p>
   </section>
   <section class="block"><h2>Markets, currencies and tax</h2>
     <div class="tablewrap"><table class="data"><thead><tr><th>Market</th><th>Currency</th><th>Tax treatment of the listed price</th></tr></thead><tbody>
@@ -378,7 +378,7 @@ export function methodologyPage(origin: string): Page {
     <p>We record the price exactly as the site shows it, in the market's own currency, as a whole amount in the smallest unit (centimes, cents or pence). US sales tax varies by state and is added at the till, so US prices are always shown as listed and are not comparable with the three tax-inclusive markets without that caveat.</p>
   </section>
   <section class="block"><h2>How often prices are checked</h2>
-    <p>Prices are captured once a month, on the 1st. For the January 2027 price-increase report the calendar is tighter:</p>
+    <p>Prices are captured once a month, starting on the 1st (a full pass can take up to three days, because each site is visited slowly). For the January 2027 price-increase report the calendar is tighter:</p>
     <ul>
       <li>1 December 2026: the baseline capture.</li>
       <li>29 December 2026: a second capture before the year ends.</li>
@@ -391,18 +391,18 @@ export function methodologyPage(origin: string): Page {
     <p>After each capture, any change of more than 15% and any change of currency is held for a manual check and does not appear until a person has confirmed it against the source page. A capture that fails (a page that will not load or a price that cannot be read) is not published and is never shown as a price.</p>
   </section>
   <section class="block"><h2>Currency conversion</h2>
-    <p>The regional comparison converts prices to Swiss francs using the euro foreign exchange reference rates published by the European Central Bank each working day at about 16:00 CET, for the date the price was last checked (the nearest available rate if there is none for that day). The conversion is for comparison only: converted figures are not stored in place of a captured price, and they carry the tax caveat above.</p>
+    <p>The regional comparison converts prices to Swiss francs using the euro foreign exchange reference rates published by the European Central Bank each working day at about 16:00 CET, for the date the price was last checked, or the latest earlier working day. The conversion is for comparison only: converted figures are not stored in place of a captured price, and they carry the tax caveat above.</p>
   </section>
   <section class="block"><h2>"Price on request" and "not available online"</h2>
     <p><strong>Price on request</strong> means the brand's page for that reference in that market shows no price and invites the visitor to ask a boutique or retailer. We record it as a status, because it is information in its own right.</p>
-    <p><strong>Not available online</strong> means the reference could not be found for sale on the brand's website in that market (Oris uses this wording, for instance). It does not mean the watch is discontinued.</p>
+    <p><strong>Not available online</strong> means the brand's page for that reference in that market shows the watch but says it cannot be bought online, and gives no price (Oris uses this wording). It does not mean the watch is discontinued, and it is not recorded as "price on request".</p>
   </section>
   <section class="block"><h2>Corrections</h2>
     <p>If a published price differs from the brand's page on the day we checked it, tell us and we will recheck it. A confirmed error is corrected by adding a new dated entry and, where the history was misleading, a note on the page. Earlier entries are not deleted. Contact: through <a href="https://tick-ticker.com">tick-ticker.com</a>.</p>
   </section>
   <section class="block"><h2>Data, credits and licence</h2>
     <p>The price dataset is published under the <a href="${DATASET_LICENSE_URL}" rel="license noopener">${DATASET_LICENSE_NAME}</a> licence. <a href="${DATASET_CSV_PATH}">Download it as a CSV file</a>: one row for the first capture of each price series and for every later change, with the date the series was last checked. You may reuse it, including commercially, if you credit "tick-ticker list-price tracker (${escapeHtml(origin.replace(/^https?:\/\//, ""))})" and link to the page you used.</p>
-    <p>Brand facts in the registry (founding dates, groups, headquarters and websites) come from public records and from Wikidata, which is released under CC0, and are reviewed by hand. tick-ticker is an independent project and is not affiliated with any brand listed.</p>
+    <p>Brand facts in the registry (founding dates, groups, headquarters and websites) come from Wikidata, which is released under CC0, and from tick-ticker's own GPHG and Only Watch records, and are reviewed by hand. tick-ticker is an independent project and is not affiliated with any brand listed.</p>
   </section>
   </div>`;
   return {
