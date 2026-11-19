@@ -111,7 +111,7 @@ ${(meta.jsonld ?? []).map(jsonLdScript).join("\n")}
 ${bodyHtml}
 </main>
 <footer class="site-footer"><div class="wrap foot-in">
-  <span>Part of <a href="https://tick-ticker.com">tick-ticker.com</a> — the watch world, in data and words · <a href="https://gphg.tick-ticker.com/">GPHG Index</a> · <a href="https://onlywatch.tick-ticker.com/">Only Watch Index</a> · <a href="https://blog.tick-ticker.com/">Journal</a></span>
+  <span>Part of <a href="https://tick-ticker.com">tick-ticker.com</a> — the watch world, in data and words · <a href="https://gphg.tick-ticker.com/">GPHG Index</a> · <a href="https://onlywatch.tick-ticker.com/">Only Watch Index</a> · <a href="https://blog.tick-ticker.com/">Journal</a> · <a href="/contact">Contact</a></span>
   <span>Brand data: public records and Wikidata, reviewed by hand · independent project, not affiliated with any brand listed</span>
   <span>&copy; ${year}</span>
 </div></footer>

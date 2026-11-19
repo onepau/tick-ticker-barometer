@@ -3,7 +3,7 @@
  * format: title, summary, then sections of links). The price section appears only while
  * PRICES_PUBLIC is on.
  */
-import { DATASET_CSV_PATH, DATASET_LICENSE_NAME, DATASET_LICENSE_URL, PRICE_REPORTS } from "@baromontres/shared/price-public";
+import { DATASET_LICENSE_NAME, DATASET_LICENSE_URL, PRICE_REPORTS } from "@baromontres/shared/price-public";
 
 export function llmsTxt(origin: string, prices: boolean): string {
   const lines = [
@@ -31,7 +31,6 @@ export function llmsTxt(origin: string, prices: boolean): string {
       ...PRICE_REPORTS.map(
         (r) => `- [Price changes in ${r.year}](${origin}/prices/${r.slug}): every list-price change since the ${r.baselineLabel} baseline, by brand, market and percentage.`,
       ),
-      `- [Price dataset (CSV)](${origin}${DATASET_CSV_PATH}): the published price series, licensed ${DATASET_LICENSE_NAME} (${DATASET_LICENSE_URL}); credit "tick-ticker list-price tracker".`,
       `- [Registry feed: references](${origin}/api/registry/v1/references.json): JSON, one entry per tracked reference with its price page URL.`,
       "",
       "Reference price pages (`/prices/<brand>/<reference>`) show the official list price in each market with tax stated (VAT included in Switzerland, France and the United Kingdom; sales tax excluded in the United States), the date last checked, the source (the brand's site or a named authorised retailer) and the price history. Prices are never a quote: tick-ticker sells no watches. Cite the page and its check date.",

@@ -22,19 +22,18 @@ import {
 } from "@baromontres/shared/registry";
 
 import {
-  DATASET_CSV_PATH,
   PRICE_REPORTS,
-  datasetCsv,
   findPriceReport,
   getPublicPriceChanges,
   listBrandSlugsWithPublicPrices,
-  listDatasetRows,
   listPriceSitemapRows,
   listReferenceFeedRows,
   pricesEnabled,
 } from "@baromontres/shared/price-public";
 import { errorPageHtml } from "./render/html.ts";
 import { llmsTxt } from "./render/llms.ts";
+import { DEFAULT_SALT, MAX_BODY_BYTES, cleanPage, makeToken, readValues, submitContact } from "./contact.ts";
+import { contactMessagePage, contactPage, contactThanksPage } from "./render/contact.ts";
 import { increasesPage, methodologyPage, parseSort, DEFAULT_DIR, DEFAULT_SORT, pricesIndexPage } from "./render/price-hub.ts";
 import { referencePricePage } from "./render/price-pages.ts";
 import {
@@ -57,6 +56,8 @@ export interface RegistryEnv {
    * Each brand also needs brands.prices_public = 1.
    */
   PRICES_PUBLIC?: string;
+  /** Salt for the contact form's signed timestamp and IP hash; a default is used if unset. */
+  CONTACT_SALT?: string;
 }
 
 type Env = { Bindings: RegistryEnv };
@@ -296,22 +297,6 @@ export function createRegistryApp(): Hono<Env> {
     pricesEnabled(c.env) ? htmlPage(c, "", () => pricesIndexPage(c.env.DB, originOf(c))) : notFoundPage(c),
   );
 
-  // The public price dataset under CC BY 4.0. Registered before /prices/:slug.
-  app.get(DATASET_CSV_PATH, (c) =>
-    pricesEnabled(c.env)
-      ? cachedPage(
-          c,
-          "",
-          "text/csv; charset=utf-8",
-          async () => ({ body: datasetCsv(await listDatasetRows(c.env.DB)) }),
-          {
-            "Content-Disposition": 'attachment; filename="tick-ticker-list-prices.csv"',
-            Link: '<https://creativecommons.org/licenses/by/4.0/>; rel="license"',
-          },
-        )
-      : notFoundPage(c),
-  );
-
   // Registered before /prices/:slug so "methodology" is not read as a report.
   app.get("/prices/methodology", (c) =>
     pricesEnabled(c.env) ? htmlPage(c, "", async () => methodologyPage(originOf(c))) : notFoundPage(c),
@@ -372,6 +357,70 @@ export function createRegistryApp(): Hono<Env> {
       };
     }),
   );
+
+  // ── Contact form (not behind PRICES_PUBLIC; noindex, not in the sitemap) ────
+
+  const NO_STORE = { ...HTML_HEADERS, "Cache-Control": "no-store" };
+  const salt = (c: Context<Env>) => c.env.CONTACT_SALT || DEFAULT_SALT;
+
+  app.get("/contact", async (c) => {
+    const page = cleanPage(new URL(c.req.url).searchParams.get("page"));
+    const token = await makeToken(salt(c), Date.now());
+    return new Response(
+      contactPage(originOf(c), token, { name: "", email: "", page, message: "" }).html,
+      { status: 200, headers: NO_STORE },
+    );
+  });
+
+  app.get("/contact/thanks", (c) =>
+    new Response(contactThanksPage(originOf(c)).html, { status: 200, headers: NO_STORE }),
+  );
+
+  app.post("/contact", async (c) => {
+    const length = Number(c.req.header("content-length") ?? 0);
+    if (length > MAX_BODY_BYTES)
+      return new Response(
+        contactMessagePage(originOf(c), "Message too long", "Please shorten your message and try again.").html,
+        { status: 413, headers: NO_STORE },
+      );
+    let body: Record<string, unknown> = {};
+    try {
+      body = await c.req.parseBody();
+    } catch {
+      /* an unreadable body is treated as empty and fails validation */
+    }
+    const now = Date.now();
+    const result = await submitContact({
+      db: c.env.DB,
+      salt: salt(c),
+      ip: c.req.header("cf-connecting-ip") ?? "unknown",
+      now,
+      body,
+    });
+    const respond = (page: { html: string }, status: number) =>
+      new Response(page.html, { status, headers: NO_STORE });
+    switch (result.kind) {
+      case "stored":
+      case "silent":
+        // POST-redirect-GET; a bot that tripped a defence sees exactly the same.
+        return c.redirect("/contact/thanks", 303);
+      case "errors":
+        return respond(
+          contactPage(originOf(c), await makeToken(salt(c), now), readValues(body), result.errors),
+          400,
+        );
+      case "limited":
+        return respond(
+          contactMessagePage(originOf(c), "Too many messages", "You have sent several messages in the last hour. Please try again later."),
+          429,
+        );
+      default:
+        return respond(
+          contactMessagePage(originOf(c), "Contact form unavailable", "We could not save your message just now. Please try again later."),
+          503,
+        );
+    }
+  });
 
   app.get("/llms.txt", (c) =>
     c.text(llmsTxt(originOf(c), pricesEnabled(c.env)), 200, {

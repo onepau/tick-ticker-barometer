@@ -301,7 +301,7 @@ export async function referencePricePage(
     <p class="lead">Official list price of the new watch${facts ? ` (${escapeHtml(facts)})` : ""}, as published by <a href="/brand/${escapeHtml(ref.brand_slug)}">${escapeHtml(ref.brand_name)}</a> or a named authorised retailer. Last checked ${lastChecked}.</p>
   </header>
   <section class="block"><h2>Current list price by market</h2>${currentCards(series)}
-    <p class="small">Prices are captured from public pages, not quoted by tick-ticker, and tick-ticker does not sell watches. See the <a href="${METHODOLOGY_PATH}">methodology</a> for sources, tax treatment and corrections.</p></section>
+    <p class="small">Prices are captured from public pages, not quoted by tick-ticker, and tick-ticker does not sell watches. See the <a href="${METHODOLOGY_PATH}">methodology</a> for sources, tax treatment and corrections. <a href="/contact?page=/prices/${escapeHtml(ref.slug)}">Report a correction</a>.</p></section>
   <section class="block"><h2>Price history</h2>${historyTable(series)}${chart.html}</section>
   ${comparisonSection(series, fx)}`;
 

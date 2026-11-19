@@ -6,7 +6,6 @@
 import {
   MARKET_NAME,
   MARKET_ORDER,
-  DATASET_CSV_PATH,
   DATASET_LICENSE_NAME,
   DATASET_LICENSE_URL,
   brandHasPublicPrices,
@@ -130,7 +129,7 @@ export async function pricesIndexPage(
   <header class="page-head"><span class="eyebrow">List-price tracker</span>
     <h1 class="display">Watch list prices by brand and reference</h1>
     <p class="lead">Official list prices of new watches in Switzerland, France, the United Kingdom and the United States, captured from brand websites or named authorised retailers, with dated history. ${brands.length} ${brands.length === 1 ? "brand" : "brands"} and ${rows.length} ${rows.length === 1 ? "reference" : "references"} tracked.</p>
-    <p><a href="/prices/increases-2027">2027 price-increase report →</a> · <a href="${METHODOLOGY_PATH}">How the prices are collected →</a> · <a href="${DATASET_CSV_PATH}">Download the data (CSV, CC BY 4.0) →</a></p>
+    <p><a href="/prices/increases-2027">2027 price-increase report →</a> · <a href="${METHODOLOGY_PATH}">How the prices are collected →</a></p>
   </header>
   ${blocks || `<p class="note">No prices are published yet.</p>`}`;
   return {
@@ -398,10 +397,10 @@ export function methodologyPage(origin: string): Page {
     <p><strong>Not available online</strong> means the brand's page for that reference in that market shows the watch but says it cannot be bought online, and gives no price (Oris uses this wording). It does not mean the watch is discontinued, and it is not recorded as "price on request".</p>
   </section>
   <section class="block"><h2>Corrections</h2>
-    <p>If a published price differs from the brand's page on the day we checked it, tell us and we will recheck it. A confirmed error is corrected by adding a new dated entry and, where the history was misleading, a note on the page. Earlier entries are not deleted. Contact: through <a href="https://tick-ticker.com">tick-ticker.com</a>.</p>
+    <p>If a published price differs from the brand's page on the day we checked it, tell us and we will recheck it. A confirmed error is corrected by adding a new dated entry and, where the history was misleading, a note on the page. Earlier entries are not deleted. Use the <a href="/contact?page=/prices/methodology">contact form</a>.</p>
   </section>
   <section class="block"><h2>Data, credits and licence</h2>
-    <p>The price dataset is published under the <a href="${DATASET_LICENSE_URL}" rel="license noopener">${DATASET_LICENSE_NAME}</a> licence. <a href="${DATASET_CSV_PATH}">Download it as a CSV file</a>: one row for the first capture of each price series and for every later change, with the date the series was last checked. You may reuse it, including commercially, if you credit "tick-ticker list-price tracker (${escapeHtml(origin.replace(/^https?:\/\//, ""))})" and link to the page you used.</p>
+    <p>The price dataset is published under the <a href="${DATASET_LICENSE_URL}" rel="license noopener">${DATASET_LICENSE_NAME}</a> licence. You may reuse it, including commercially, if you credit "tick-ticker list-price tracker (${escapeHtml(origin.replace(/^https?:\/\//, ""))})" and link to the page you used.</p>
     <p>Brand facts in the registry (founding dates, groups, headquarters and websites) come from Wikidata, which is released under CC0, and from tick-ticker's own GPHG and Only Watch records, and are reviewed by hand. tick-ticker is an independent project and is not affiliated with any brand listed.</p>
   </section>
   </div>`;

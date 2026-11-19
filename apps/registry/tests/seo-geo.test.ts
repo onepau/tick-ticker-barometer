@@ -29,7 +29,6 @@ describe("sitemap", () => {
     expect(xml).toContain("<loc>https://prices.tick-ticker.com/prices/rolex/126610ln</loc><lastmod>2026-12-01</lastmod>");
     expect(xml).not.toContain("tissot/t137-407");
     expect(xml).not.toContain("omega/no-prices");
-    expect(xml).not.toContain("dataset.csv");
   });
 
   it("the increases report is listed only once it has changes", async () => {
@@ -93,50 +92,18 @@ describe("llms.txt", () => {
     expect(off).toContain("/brands");
     expect(off).not.toMatch(/prices\/|List prices|dataset\.csv/);
     const on = await (await get(t, "/llms.txt", ON)).text();
-    for (const s of ["## List prices", "/prices/methodology", "/prices/increases-2027", "/prices/dataset.csv", "CC BY 4.0", "/api/registry/v1/references.json"])
+    for (const s of ["## List prices", "/prices/methodology", "/prices/increases-2027", "/api/registry/v1/references.json"])
       expect(on).toContain(s);
     expect((await get(t, "/llms.txt")).headers.get("content-type")).toMatch(/text\/plain/);
   });
 });
 
 describe("dataset CSV", () => {
-  let t: TestD1;
-  beforeEach(() => {
-    t = createTestD1();
+  it("is not served: the route is gone, flag on or off", async () => {
+    const t = createTestD1();
     seedPrices(t);
-  });
-
-  it("flag off: 404", async () => {
+    expect((await get(t, "/prices/dataset.csv", ON)).status).toBe(404);
     expect((await get(t, "/prices/dataset.csv")).status).toBe(404);
-  });
-
-  it("flag on: CC BY header, compact rows, no errors, no private brands", async () => {
-    const res = await get(t, "/prices/dataset.csv", ON);
-    expect(res.status).toBe(200);
-    expect(res.headers.get("content-type")).toMatch(/text\/csv/);
-    expect(res.headers.get("content-disposition")).toContain("tick-ticker-list-prices.csv");
-    expect(res.headers.get("link")).toContain("creativecommons.org/licenses/by/4.0");
-    const lines = (await res.text()).trimEnd().split("\r\n");
-    expect(lines[0]).toBe(
-      "brand_slug,brand,reference_slug,reference_code,reference_name,market,currency,amount,amount_minor,tax,status,captured_at,series_last_checked,source,source_url,license",
-    );
-    const body = lines.slice(1).join("\n");
-    // Omega CH: first capture 7,000 and the January change to 7,210; the unchanged 29 December check is collapsed.
-    expect(body).toContain("omega,Omega,omega/310-30-42-50-01-001,310.30.42.50.01.001,Speedmaster Moonwatch Professional,CH,CHF,7000.00,700000,including VAT,ok,2026-12-01T10:00:00Z,2027-01-02T10:00:00Z,brand:www.omegawatches.com,https://www.omegawatches.com/ch/x,CC BY 4.0");
-    expect(body).toContain("CHF,7210.00,721000");
-    expect(body).not.toContain("2026-12-29");
-    // Price on request has no amount; US says tax excluded; Rolex names its retailer.
-    expect(body).toMatch(/,UK,GBP,,,including VAT,price_on_request,/);
-    expect(body).toContain("excluding sales tax");
-    expect(body).toContain("retailer:www.bucherer.com");
-    expect(body).not.toContain("tissot");
-    expect(body).not.toMatch(/,error,/);
-  });
-
-  it("neutralises spreadsheet formulas and quotes commas", async () => {
-    t.raw.exec(`UPDATE watch_references SET name = '=HYPERLINK("x"), test' WHERE id = 1`);
-    const csv = await (await get(t, "/prices/dataset.csv", ON)).text();
-    expect(csv).toContain(`"'=HYPERLINK(""x""), test"`);
   });
 });
 
