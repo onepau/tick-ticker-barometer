@@ -85,10 +85,10 @@ const hostOf = (url: string): string => {
 };
 
 /** Only http(s) URLs become links; anything else in the data is ignored. */
-const safeUrl = (u: string | null): string | null =>
+export const safeUrl = (u: string | null): string | null =>
   u && /^https?:\/\//i.test(u) ? u : null;
 
-function breadcrumbLd(
+export function breadcrumbLd(
   origin: string,
   items: { name: string; path?: string }[],
 ): object {

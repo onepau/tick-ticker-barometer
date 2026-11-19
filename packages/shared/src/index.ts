@@ -4,3 +4,4 @@ export { createApi } from './api.ts';
 export * from './registry.ts';
 export * from './prices.ts';
 export * from './report.ts';
+export * from './price-public.ts';

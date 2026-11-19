@@ -70,4 +70,22 @@ main .crumbs a{color:var(--ink-soft)}.crumbs span[aria-current]{color:var(--ink)
 .site-footer{border-top:1px solid var(--paper-line);background:var(--paper-hi);color:var(--ink-soft);font-size:13px}
 .foot-in{display:flex;flex-direction:column;gap:6px;padding-top:22px;padding-bottom:26px}
 .site-footer a{color:var(--accent)}
+.tablewrap{overflow-x:auto;margin:10px 0 0}
+table.data{border-collapse:collapse;width:100%;font-size:15px}
+table.data th,table.data td{text-align:left;padding:8px 12px 8px 0;border-bottom:1px solid var(--paper-line);vertical-align:top}
+table.data th{font-family:var(--label);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;white-space:nowrap}
+table.data td.num,table.data th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.data caption{text-align:left;font-size:13px;color:var(--ink-soft);padding:0 0 8px}
+.up{color:var(--ruby)}.down{color:var(--forest)}
+.pricecards{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:620px){.pricecards{grid-template-columns:1fr 1fr}}
+.pricecard{border:1px solid var(--paper-line-strong);background:#fff;padding:16px 18px}
+.pricecard .k{font-family:var(--label);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.pricecard .amt{font-family:var(--serif);font-size:26px;line-height:1.2;margin-top:4px;font-variant-numeric:tabular-nums}
+.pricecard .s{font-size:13.5px;color:var(--ink-soft);margin-top:4px}
+.chart{margin:18px 0 0;max-width:820px}
+.chart canvas{width:100%;max-height:360px}
+.chart figcaption{font-size:13px;color:var(--ink-soft);margin-top:6px}
+.small{font-size:13.5px;color:var(--ink-soft)}
+.prose{max-width:68ch}.prose p,.prose li{margin:0 0 .9em}.prose h2{margin-top:1.6em}
 `;

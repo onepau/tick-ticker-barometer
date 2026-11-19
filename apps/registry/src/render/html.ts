@@ -1,8 +1,10 @@
 /**
  * Page chrome for the public registry: <head>, masthead, footer, breadcrumbs.
  * Adapted from the GPHG Index layout (tick-ticker-gphg/worker/src/lib/layout.js), with
- * the analytics and consent plumbing left out: this Worker sets no cookies and runs no
- * client script, so every page is plain server-rendered HTML and CSS.
+ * the analytics and consent plumbing left out: this Worker sets no cookies, and every
+ * page is complete server-rendered HTML and CSS. The only client script is the optional
+ * Chart.js enhancement on a reference price page (`meta.bodyEnd`); the page reads the
+ * same without it.
  */
 import { CSS } from "./styles.ts";
 
@@ -22,7 +24,7 @@ const FONT_CSS =
 
 const NAV = [
   { href: "/brands", label: "Brands" },
-  { href: "/brands/dormant-and-dead", label: "Dormant and dead" },
+  { href: "/brands/dormant-and-defunct", label: "Dormant and defunct" },
 ];
 
 export interface Crumb {
@@ -54,6 +56,10 @@ export interface PageMeta {
   navCurrent?: string;
   /** Keep the page out of the index (filtered lists, 404s). */
   noindex?: boolean;
+  /** Show the "Prices" link in the masthead (only while the price pages are switched on). */
+  pricesNav?: boolean;
+  /** Raw HTML placed just before </body> (scripts). */
+  bodyEnd?: string;
 }
 
 /** JSON for an inline <script>: "<" is escaped so a name can never close the tag. */
@@ -67,7 +73,7 @@ export function layout(
   bodyHtml: string,
 ): string {
   const url = `${origin}${meta.canonical}`;
-  const nav = NAV.map(
+  const nav = [...NAV, ...(meta.pricesNav ? [{ href: "/prices", label: "Prices" }] : [])].map(
     (l) =>
       `<a href="${l.href}"${meta.navCurrent === l.href ? ' aria-current="page"' : ""}>${escapeHtml(l.label)}</a>`,
   ).join("");
@@ -109,6 +115,7 @@ ${bodyHtml}
   <span>Brand data: public records and Wikidata, reviewed by hand · independent project, not affiliated with any brand listed</span>
   <span>&copy; ${year}</span>
 </div></footer>
+${meta.bodyEnd ?? ""}
 </body>
 </html>`;
 }

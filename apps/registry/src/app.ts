@@ -21,7 +21,9 @@ import {
   toGroupFeedItem,
 } from "@baromontres/shared/registry";
 
+import { pricesEnabled } from "@baromontres/shared/price-public";
 import { errorPageHtml } from "./render/html.ts";
+import { referencePricePage } from "./render/price-pages.ts";
 import {
   brandPage,
   brandsIndexPage,
@@ -35,6 +37,12 @@ export interface RegistryEnv {
   DB: D1Database;
   /** Public origin for canonical URLs and the sitemap; defaults to REGISTRY_ORIGIN. */
   PUBLIC_ORIGIN?: string;
+  /**
+   * Feature flag for everything public about prices. "1" turns it on; anything else
+   * (including unset) leaves the price routes as 404s and hides prices everywhere else.
+   * Each brand also needs brands.prices_public = 1.
+   */
+  PRICES_PUBLIC?: string;
 }
 
 type Env = { Bindings: RegistryEnv };
@@ -236,6 +244,16 @@ export function createRegistryApp(): Hono<Env> {
   app.get("/brands/dormant-and-defunct", (c) =>
     htmlPage(c, "", () => dormantAndDefunctPage(c.env.DB, originOf(c))),
   );
+
+  // ── Prices (behind PRICES_PUBLIC; 404 while the flag is off) ───────────────
+
+  app.get("/prices/:brand/:ref", async (c) => {
+    if (!pricesEnabled(c.env)) return notFoundPage(c);
+    const { brand, ref } = c.req.param();
+    const slug = `${brand}/${ref}`;
+    if (slug !== slug.toLowerCase()) return c.redirect(`/prices/${slug.toLowerCase()}`, 301);
+    return htmlPage(c, "", () => referencePricePage(c.env.DB, originOf(c), slug));
+  });
 
   app.get("/sitemap.xml", (c) =>
     cachedPage(c, "", "application/xml; charset=utf-8", async () => {
