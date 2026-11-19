@@ -52,6 +52,7 @@ export const PRICE_MIGRATIONS = [
   '0007_price_schema.sql',
   '0008_price_sources_manual.sql',
   '0009_run_reports.sql',
+  '0010_site_text.sql',
 ];
 
 /** Fresh in-memory database with the registry and price migrations applied. */

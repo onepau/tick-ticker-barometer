@@ -21,8 +21,9 @@ import {
   toGroupFeedItem,
 } from "@baromontres/shared/registry";
 
-import { pricesEnabled } from "@baromontres/shared/price-public";
+import { findPriceReport, pricesEnabled } from "@baromontres/shared/price-public";
 import { errorPageHtml } from "./render/html.ts";
+import { increasesPage, methodologyPage, parseSort, DEFAULT_DIR, DEFAULT_SORT, pricesIndexPage } from "./render/price-hub.ts";
 import { referencePricePage } from "./render/price-pages.ts";
 import {
   brandPage,
@@ -31,6 +32,7 @@ import {
   groupPage,
   INDEPENDENT_SLUG,
   type Page,
+  type PageOpts,
 } from "./render/pages.ts";
 
 export interface RegistryEnv {
@@ -108,6 +110,7 @@ const HTML_HEADERS = {
 };
 
 const originOf = (c: Context<Env>): string => c.env.PUBLIC_ORIGIN ?? REGISTRY_ORIGIN;
+const pageOpts = (c: Context<Env>): PageOpts => ({ prices: pricesEnabled(c.env) });
 
 /**
  * Serve a page through the Cache API. `keyQuery` is the already-normalised query string
@@ -210,13 +213,13 @@ export function createRegistryApp(): Hono<Env> {
     const slug = c.req.param("slug");
     // GPHG lower-cases slugs; send an upper-case URL to its canonical form.
     if (slug !== slug.toLowerCase()) return c.redirect(`/brand/${slug.toLowerCase()}`, 301);
-    return htmlPage(c, "", () => brandPage(c.env.DB, originOf(c), slug));
+    return htmlPage(c, "", () => brandPage(c.env.DB, originOf(c), slug, pageOpts(c)));
   });
 
   app.get("/group/:slug", async (c) => {
     const slug = c.req.param("slug");
     if (slug !== slug.toLowerCase()) return c.redirect(`/group/${slug.toLowerCase()}`, 301);
-    return htmlPage(c, "", () => groupPage(c.env.DB, originOf(c), slug));
+    return htmlPage(c, "", () => groupPage(c.env.DB, originOf(c), slug, pageOpts(c)));
   });
 
   app.get("/brands", (c) => {
@@ -233,7 +236,7 @@ export function createRegistryApp(): Hono<Env> {
       if (v) norm.set(k, v);
     }
     return htmlPage(c, norm.toString(), async () =>
-      brandsIndexPage(c.env.DB, originOf(c), norm),
+      brandsIndexPage(c.env.DB, originOf(c), norm, pageOpts(c)),
     );
   });
 
@@ -242,10 +245,32 @@ export function createRegistryApp(): Hono<Env> {
   );
 
   app.get("/brands/dormant-and-defunct", (c) =>
-    htmlPage(c, "", () => dormantAndDefunctPage(c.env.DB, originOf(c))),
+    htmlPage(c, "", () => dormantAndDefunctPage(c.env.DB, originOf(c), pageOpts(c))),
   );
 
   // ── Prices (behind PRICES_PUBLIC; 404 while the flag is off) ───────────────
+
+  app.get("/prices", (c) =>
+    pricesEnabled(c.env) ? htmlPage(c, "", () => pricesIndexPage(c.env.DB, originOf(c))) : notFoundPage(c),
+  );
+
+  // Registered before /prices/:slug so "methodology" is not read as a report.
+  app.get("/prices/methodology", (c) =>
+    pricesEnabled(c.env) ? htmlPage(c, "", async () => methodologyPage(originOf(c))) : notFoundPage(c),
+  );
+
+  // Yearly report, e.g. /prices/increases-2027; sorting is a query string (sort, dir).
+  app.get("/prices/:slug", (c) => {
+    const report = findPriceReport(c.req.param("slug"));
+    if (!pricesEnabled(c.env) || !report) return notFoundPage(c);
+    const q = new URL(c.req.url).searchParams;
+    const { sort, dir } = parseSort(q);
+    // Cache key: the sort order only, normalised, so stray parameters cannot fragment it.
+    const key = sort === DEFAULT_SORT && dir === DEFAULT_DIR ? "" : `sort=${sort}&dir=${dir}`;
+    return htmlPage(c, key, () =>
+      increasesPage(c.env.DB, originOf(c), report, new URLSearchParams(key)),
+    );
+  });
 
   app.get("/prices/:brand/:ref", async (c) => {
     if (!pricesEnabled(c.env)) return notFoundPage(c);

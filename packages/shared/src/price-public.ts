@@ -263,3 +263,309 @@ export const dayOf = (iso: string): string => iso.slice(0, 10);
 
 export const TAX_TEXT = (taxIncluded: boolean): string =>
   taxIncluded ? "including VAT" : "excluding sales tax";
+
+// ── Reports: changes since a baseline (unit 10) ──────────────────────────────
+
+/**
+ * A yearly price-change report. The January 2027 report compares the December 2026
+ * baseline with the latest capture; a 2028 report is one more entry here (and an intro
+ * row in site_text), with no new template.
+ */
+export interface PriceReport {
+  year: number;
+  /** URL path segment: /prices/<slug>. */
+  slug: string;
+  /** Baseline capture window, UTC dates inclusive: the first 'ok' price in it is the baseline. */
+  baselineFrom: string;
+  baselineTo: string;
+  /** Changes are measured against captures after the window and before this date (exclusive), if set. */
+  until?: string;
+  /** site_text key of the introduction. */
+  introKey: string;
+  /** "December 2026", as written in prose. */
+  baselineLabel: string;
+}
+
+export const PRICE_REPORTS: readonly PriceReport[] = [
+  {
+    year: 2027,
+    slug: "increases-2027",
+    baselineFrom: "2026-12-01",
+    // The monthly capture period is open for three days (apps/prices calendar).
+    baselineTo: "2026-12-03",
+    until: "2027-12-01",
+    introKey: "increases-2027-intro",
+    baselineLabel: "December 2026",
+  },
+];
+
+export const findPriceReport = (slug: string): PriceReport | undefined =>
+  PRICE_REPORTS.find((r) => r.slug === slug);
+
+export interface PublicPriceChange {
+  reference_id: number;
+  reference_slug: string;
+  ref_code: string;
+  ref_name: string | null;
+  family: string | null;
+  brand_slug: string;
+  brand_name: string;
+  market_code: MarketCode;
+  currency: string;
+  source: SourceKey | null;
+  baseline_amount_minor: number;
+  baseline_captured_at: string;
+  current_amount_minor: number;
+  current_captured_at: string;
+  /** First capture at the current price after the last capture at any other price. */
+  first_new_at: string;
+  delta_minor: number;
+  /** Percentage, two decimals (a ratio, not an amount). */
+  change_pct: number;
+}
+
+const nextDayOf = (isoDate: string): string => {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) throw new Error(`invalid date: ${isoDate}`);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+};
+
+/**
+ * Public price changes since a baseline. Per reference × market × source, the baseline is
+ * the first 'ok' snapshot inside the baseline window and the current price is the latest
+ * 'ok' snapshot after the window. Only the countable view is read, so errors and flagged
+ * rows are ignored and a retailer price needs its brand capture; a pair is compared only
+ * when both prices share one source and one currency (currencies are never mixed). Cells
+ * whose amount did not change are not returned. Brands must have prices_public = 1.
+ */
+export async function getPublicPriceChanges(
+  db: D1Database,
+  report: Pick<PriceReport, "baselineFrom" | "baselineTo" | "until">,
+): Promise<PublicPriceChange[]> {
+  const from = report.baselineFrom;
+  const afterWindow = nextDayOf(report.baselineTo);
+  const until = report.until ?? "9999-12-31";
+  const { results } = await db
+    .prepare(
+      `WITH base AS (
+         SELECT reference_id, market_code, COALESCE(source, '') AS src, source, currency,
+                amount_minor, captured_at,
+                ROW_NUMBER() OVER (
+                  PARTITION BY reference_id, market_code, COALESCE(source, '')
+                  ORDER BY captured_at, id) AS rn
+           FROM price_snapshots_countable
+          WHERE status = 'ok' AND captured_at >= ? AND captured_at < ?
+       ),
+       cur AS (
+         SELECT reference_id, market_code, COALESCE(source, '') AS src, currency,
+                amount_minor, captured_at,
+                ROW_NUMBER() OVER (
+                  PARTITION BY reference_id, market_code, COALESCE(source, '')
+                  ORDER BY captured_at DESC, id DESC) AS rn
+           FROM price_snapshots_countable
+          WHERE status = 'ok' AND captured_at >= ? AND captured_at < ?
+       )
+       SELECT r.id AS reference_id, r.slug AS reference_slug, r.ref_code,
+              r.name AS ref_name, r.family,
+              br.slug AS brand_slug, br.name AS brand_name,
+              b.market_code, b.currency, b.source,
+              b.amount_minor AS baseline_amount_minor, b.captured_at AS baseline_captured_at,
+              c.amount_minor AS current_amount_minor, c.captured_at AS current_captured_at,
+              (SELECT MIN(x.captured_at) FROM price_snapshots_countable x
+                WHERE x.reference_id = c.reference_id AND x.market_code = c.market_code
+                  AND COALESCE(x.source, '') = c.src AND x.status = 'ok'
+                  AND x.currency = c.currency AND x.amount_minor = c.amount_minor
+                  AND x.captured_at > COALESCE(
+                        (SELECT MAX(y.captured_at) FROM price_snapshots_countable y
+                          WHERE y.reference_id = c.reference_id AND y.market_code = c.market_code
+                            AND COALESCE(y.source, '') = c.src AND y.status = 'ok'
+                            AND y.currency = c.currency AND y.amount_minor <> c.amount_minor
+                            AND y.captured_at >= ?), '')
+               ) AS first_new_at,
+              c.amount_minor - b.amount_minor AS delta_minor
+         FROM base b
+         JOIN cur c ON c.reference_id = b.reference_id AND c.market_code = b.market_code
+                   AND c.src = b.src AND c.currency = b.currency
+         JOIN watch_references r ON r.id = b.reference_id
+         JOIN brands br ON br.id = r.brand_id
+        WHERE b.rn = 1 AND c.rn = 1
+          AND c.amount_minor <> b.amount_minor
+          AND br.prices_public = 1
+        ORDER BY br.name, r.ref_code, b.market_code`,
+    )
+    .bind(from, afterWindow, afterWindow, until, from)
+    .all<Omit<PublicPriceChange, "change_pct">>();
+  return results.map((r) => ({
+    ...r,
+    change_pct: Math.round((r.delta_minor / r.baseline_amount_minor) * 10_000) / 100,
+  }));
+}
+
+export type ChangeSort = "brand" | "market" | "pct";
+
+/** Sorts a copy: by brand, market or percentage; ties break on brand, reference, market. */
+export function sortChanges(
+  rows: PublicPriceChange[],
+  sort: ChangeSort,
+  dir: "asc" | "desc",
+): PublicPriceChange[] {
+  const sign = dir === "asc" ? 1 : -1;
+  const text = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+  const market = (m: MarketCode) => MARKET_ORDER.indexOf(m);
+  const tie = (a: PublicPriceChange, b: PublicPriceChange) =>
+    text(a.brand_name, b.brand_name) ||
+    text(a.ref_code, b.ref_code) ||
+    market(a.market_code) - market(b.market_code);
+  return [...rows].sort((a, b) => {
+    const primary =
+      sort === "brand"
+        ? text(a.brand_name.toLowerCase(), b.brand_name.toLowerCase())
+        : sort === "market"
+          ? market(a.market_code) - market(b.market_code)
+          : a.change_pct - b.change_pct;
+    return primary * sign || tie(a, b);
+  });
+}
+
+// ── Brand and index summaries ────────────────────────────────────────────────
+
+export interface TrackedReference {
+  slug: string;
+  ref_code: string;
+  name: string | null;
+  family: string | null;
+  markets: string; // 'CH,FR,UK,US'
+  last_checked: string;
+}
+
+/** References of one brand that have at least one publishable 'ok' price. */
+export async function listTrackedReferences(db: D1Database, brandId: number): Promise<TrackedReference[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT r.slug, r.ref_code, r.name, r.family,
+              GROUP_CONCAT(DISTINCT s.market_code) AS markets,
+              MAX(s.captured_at) AS last_checked
+         FROM watch_references r
+         JOIN price_snapshots_countable s ON s.reference_id = r.id AND s.status = 'ok'
+        WHERE r.brand_id = ?
+        GROUP BY r.id
+        ORDER BY r.family IS NULL, r.family, r.ref_code`,
+    )
+    .bind(brandId)
+    .all<TrackedReference>();
+  return results;
+}
+
+export interface MarketLatestChange {
+  market_code: MarketCode;
+  currency: string;
+  reference_slug: string;
+  ref_code: string;
+  ref_name: string | null;
+  from_amount_minor: number;
+  to_amount_minor: number;
+  changed_at: string;
+  change_pct: number;
+}
+
+/**
+ * The most recent price change in each market across a brand's references: a snapshot
+ * whose amount differs from the previous 'ok' snapshot of the same reference, market,
+ * source and currency.
+ */
+export async function listLatestChangePerMarket(
+  db: D1Database,
+  brandId: number,
+): Promise<MarketLatestChange[]> {
+  const { results } = await db
+    .prepare(
+      `WITH s AS (
+         SELECT x.reference_id, x.market_code, x.currency, x.amount_minor, x.captured_at, x.id,
+                LAG(x.amount_minor) OVER w AS prev_amount,
+                LAG(x.currency) OVER w AS prev_currency
+           FROM price_snapshots_countable x
+          WHERE x.status = 'ok'
+            AND x.reference_id IN (SELECT id FROM watch_references WHERE brand_id = ?)
+         WINDOW w AS (PARTITION BY x.reference_id, x.market_code, COALESCE(x.source, '')
+                      ORDER BY x.captured_at, x.id)
+       ),
+       ch AS (
+         SELECT *, ROW_NUMBER() OVER (
+                  PARTITION BY market_code ORDER BY captured_at DESC, id DESC) AS rn
+           FROM s
+          WHERE prev_amount IS NOT NULL AND prev_amount <> amount_minor AND prev_currency = currency
+       )
+       SELECT ch.market_code, ch.currency, r.slug AS reference_slug, r.ref_code, r.name AS ref_name,
+              ch.prev_amount AS from_amount_minor, ch.amount_minor AS to_amount_minor,
+              ch.captured_at AS changed_at
+         FROM ch JOIN watch_references r ON r.id = ch.reference_id
+        WHERE ch.rn = 1`,
+    )
+    .bind(brandId)
+    .all<Omit<MarketLatestChange, "change_pct">>();
+  return MARKET_ORDER.flatMap((m) =>
+    results
+      .filter((r) => r.market_code === m)
+      .map((r) => ({
+        ...r,
+        change_pct: Math.round(((r.to_amount_minor - r.from_amount_minor) / r.from_amount_minor) * 10_000) / 100,
+      })),
+  );
+}
+
+export interface PriceIndexRow {
+  brand_slug: string;
+  brand_name: string;
+  reference_slug: string;
+  ref_code: string;
+  ref_name: string | null;
+  family: string | null;
+  markets: string;
+}
+
+/** Every public reference with a publishable price, grouped by brand (for /prices). */
+export async function listPublicPriceIndex(db: D1Database): Promise<PriceIndexRow[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT b.slug AS brand_slug, b.name AS brand_name, r.slug AS reference_slug, r.ref_code,
+              r.name AS ref_name, r.family, GROUP_CONCAT(DISTINCT s.market_code) AS markets
+         FROM watch_references r
+         JOIN brands b ON b.id = r.brand_id AND b.prices_public = 1
+         JOIN price_snapshots_countable s ON s.reference_id = r.id AND s.status = 'ok'
+        GROUP BY r.id
+        ORDER BY b.name COLLATE NOCASE, r.family IS NULL, r.family, r.ref_code`,
+    )
+    .all<PriceIndexRow>();
+  return results;
+}
+
+/** True when the brand is public and has at least one reference with a publishable price. */
+export async function brandHasPublicPrices(db: D1Database, brandId: number): Promise<boolean> {
+  const row = await db
+    .prepare(
+      `SELECT 1 AS ok FROM brands b
+        WHERE b.id = ? AND b.prices_public = 1
+          AND EXISTS (SELECT 1 FROM watch_references r
+                        JOIN price_snapshots_countable s ON s.reference_id = r.id AND s.status = 'ok'
+                       WHERE r.brand_id = b.id)`,
+    )
+    .bind(brandId)
+    .first<{ ok: number }>();
+  return row !== null;
+}
+
+// ── Editable text ────────────────────────────────────────────────────────────
+
+/** A site_text block, or null when the row (or the table, before migration 0010) is missing. */
+export async function getSiteText(db: D1Database, key: string): Promise<string | null> {
+  try {
+    const row = await db
+      .prepare(`SELECT body FROM site_text WHERE key = ?`)
+      .bind(key)
+      .first<{ body: string }>();
+    return row?.body ?? null;
+  } catch {
+    return null;
+  }
+}
