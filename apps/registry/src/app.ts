@@ -21,8 +21,19 @@ import {
   toGroupFeedItem,
 } from "@baromontres/shared/registry";
 
-import { findPriceReport, pricesEnabled } from "@baromontres/shared/price-public";
+import {
+  PRICE_REPORTS,
+  findPriceReport,
+  getPublicPriceChanges,
+  listBrandSlugsWithPublicPrices,
+  listPriceSitemapRows,
+  listReferenceFeedRows,
+  pricesEnabled,
+} from "@baromontres/shared/price-public";
 import { errorPageHtml } from "./render/html.ts";
+import { llmsTxt } from "./render/llms.ts";
+import { DEFAULT_SALT, MAX_BODY_BYTES, cleanPage, makeToken, readValues, submitContact } from "./contact.ts";
+import { contactMessagePage, contactPage, contactThanksPage } from "./render/contact.ts";
 import { increasesPage, methodologyPage, parseSort, DEFAULT_DIR, DEFAULT_SORT, pricesIndexPage } from "./render/price-hub.ts";
 import { referencePricePage } from "./render/price-pages.ts";
 import {
@@ -45,6 +56,8 @@ export interface RegistryEnv {
    * Each brand also needs brands.prices_public = 1.
    */
   PRICES_PUBLIC?: string;
+  /** Salt for the contact form's signed timestamp and IP hash; a default is used if unset. */
+  CONTACT_SALT?: string;
 }
 
 type Env = { Bindings: RegistryEnv };
@@ -122,6 +135,7 @@ async function cachedPage(
   keyQuery: string,
   contentType: string,
   build: () => Promise<{ body: string } | null>,
+  extraHeaders: Record<string, string> = {},
 ): Promise<Response> {
   const cache = edgeCache();
   const keyUrl = new URL(c.req.path, c.req.url);
@@ -135,7 +149,7 @@ async function cachedPage(
   if (!built) return notFoundPage(c);
   const res = new Response(built.body, {
     status: 200,
-    headers: { ...HTML_HEADERS, "Content-Type": contentType },
+    headers: { ...HTML_HEADERS, "Content-Type": contentType, ...extraHeaders },
   });
   if (cache) waitUntil(c, cache.put(key, res.clone()));
   return res;
@@ -173,11 +187,39 @@ export function createRegistryApp(): Hono<Env> {
   const app = new Hono<Env>();
 
   app.get("/api/registry/v1/brands.json", (c) =>
-    cachedJson(c, async () =>
-      feed((await listBrandFeedRows(c.env.DB)).map((r) =>
-        toBrandFeedItem(r, originOf(c)),
-      )),
-    ),
+    cachedJson(c, async () => {
+      // price_url is filled only while PRICES_PUBLIC is on, for brands with public prices.
+      const priceSlugs = pricesEnabled(c.env)
+        ? await listBrandSlugsWithPublicPrices(c.env.DB)
+        : new Set<string>();
+      return feed(
+        (await listBrandFeedRows(c.env.DB)).map((r) =>
+          toBrandFeedItem(r, originOf(c), priceSlugs),
+        ),
+      );
+    }),
+  );
+
+  // References with a public price page (404 while prices are off): GPHG and Only Watch
+  // match their watches against `ref_code` and link to `url`.
+  app.get("/api/registry/v1/references.json", (c) =>
+    pricesEnabled(c.env)
+      ? cachedJson(c, async () =>
+          feed(
+            (await listReferenceFeedRows(c.env.DB)).map((r) => ({
+              id: r.id,
+              slug: r.slug,
+              brand: { slug: r.brand_slug, name: r.brand_name, url: `${originOf(c)}/brand/${r.brand_slug}` },
+              ref_code: r.ref_code,
+              family: r.family,
+              name: r.name,
+              markets: r.markets.split(","),
+              last_checked: r.last_checked.slice(0, 10),
+              url: `${originOf(c)}/prices/${r.slug}`,
+            })),
+          ),
+        )
+      : c.json({ error: "not_found" }, 404),
   );
 
   app.get("/api/registry/v1/groups.json", (c) =>
@@ -195,6 +237,7 @@ export function createRegistryApp(): Hono<Env> {
         endpoints: [
           "/api/registry/v1/brands.json",
           "/api/registry/v1/groups.json",
+          ...(pricesEnabled(c.env) ? ["/api/registry/v1/references.json"] : []),
         ],
       },
       200,
@@ -294,9 +337,95 @@ export function createRegistryApp(): Hono<Env> {
         url(`/group/${INDEPENDENT_SLUG}`),
         ...rows.map((r) => url(`/${r.kind}/${r.slug}`, r.updated_at)),
       ];
+      if (pricesEnabled(c.env)) {
+        // Price pages only while the flag is on; lastmod is the latest snapshot.
+        const refs = await listPriceSitemapRows(c.env.DB);
+        if (refs.length) {
+          const latest = refs.map((r) => r.lastmod).sort().pop();
+          urls.push(url("/prices", latest), url("/prices/methodology"));
+          // A report with no changes is noindex, so it stays out of the sitemap.
+          for (const report of PRICE_REPORTS) {
+            const changes = await getPublicPriceChanges(c.env.DB, report);
+            if (changes.length)
+              urls.push(url(`/prices/${report.slug}`, changes.map((x) => x.current_captured_at).sort().pop()));
+          }
+          urls.push(...refs.map((r) => url(`/prices/${r.slug}`, r.lastmod)));
+        }
+      }
       return {
         body: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`,
       };
+    }),
+  );
+
+  // ── Contact form (not behind PRICES_PUBLIC; noindex, not in the sitemap) ────
+
+  const NO_STORE = { ...HTML_HEADERS, "Cache-Control": "no-store" };
+  const salt = (c: Context<Env>) => c.env.CONTACT_SALT || DEFAULT_SALT;
+
+  app.get("/contact", async (c) => {
+    const page = cleanPage(new URL(c.req.url).searchParams.get("page"));
+    const token = await makeToken(salt(c), Date.now());
+    return new Response(
+      contactPage(originOf(c), token, { name: "", email: "", page, message: "" }).html,
+      { status: 200, headers: NO_STORE },
+    );
+  });
+
+  app.get("/contact/thanks", (c) =>
+    new Response(contactThanksPage(originOf(c)).html, { status: 200, headers: NO_STORE }),
+  );
+
+  app.post("/contact", async (c) => {
+    const length = Number(c.req.header("content-length") ?? 0);
+    if (length > MAX_BODY_BYTES)
+      return new Response(
+        contactMessagePage(originOf(c), "Message too long", "Please shorten your message and try again.").html,
+        { status: 413, headers: NO_STORE },
+      );
+    let body: Record<string, unknown> = {};
+    try {
+      body = await c.req.parseBody();
+    } catch {
+      /* an unreadable body is treated as empty and fails validation */
+    }
+    const now = Date.now();
+    const result = await submitContact({
+      db: c.env.DB,
+      salt: salt(c),
+      ip: c.req.header("cf-connecting-ip") ?? "unknown",
+      now,
+      body,
+    });
+    const respond = (page: { html: string }, status: number) =>
+      new Response(page.html, { status, headers: NO_STORE });
+    switch (result.kind) {
+      case "stored":
+      case "silent":
+        // POST-redirect-GET; a bot that tripped a defence sees exactly the same.
+        return c.redirect("/contact/thanks", 303);
+      case "errors":
+        return respond(
+          contactPage(originOf(c), await makeToken(salt(c), now), readValues(body), result.errors),
+          400,
+        );
+      case "limited":
+        return respond(
+          contactMessagePage(originOf(c), "Too many messages", "You have sent several messages in the last hour. Please try again later."),
+          429,
+        );
+      default:
+        return respond(
+          contactMessagePage(originOf(c), "Contact form unavailable", "We could not save your message just now. Please try again later."),
+          503,
+        );
+    }
+  });
+
+  app.get("/llms.txt", (c) =>
+    c.text(llmsTxt(originOf(c), pricesEnabled(c.env)), 200, {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "public, max-age=3600",
     }),
   );
 

@@ -397,7 +397,7 @@ export function methodologyPage(origin: string): Page {
     <p><strong>Not available online</strong> means the brand's page for that reference in that market shows the watch but says it cannot be bought online, and gives no price (Oris uses this wording). It does not mean the watch is discontinued, and it is not recorded as "price on request".</p>
   </section>
   <section class="block"><h2>Corrections</h2>
-    <p>If a published price differs from the brand's page on the day we checked it, tell us and we will recheck it. A confirmed error is corrected by adding a new dated entry and, where the history was misleading, a note on the page. Earlier entries are not deleted. Contact: through <a href="https://tick-ticker.com">tick-ticker.com</a>.</p>
+    <p>If a published price differs from the brand's page on the day we checked it, tell us and we will recheck it. A confirmed error is corrected by adding a new dated entry and, where the history was misleading, a note on the page. Earlier entries are not deleted. Use the <a href="/contact?page=/prices/methodology">contact form</a>.</p>
   </section>
   <section class="block"><h2>Data, credits and licence</h2>
     <p>The price dataset is published under the <a href="${DATASET_LICENSE_URL}" rel="license noopener">${DATASET_LICENSE_NAME}</a> licence. You may reuse it, including commercially, if you credit "tick-ticker list-price tracker (${escapeHtml(origin.replace(/^https?:\/\//, ""))})" and link to the page you used.</p>

@@ -88,4 +88,10 @@ table.data caption{text-align:left;font-size:13px;color:var(--ink-soft);padding:
 .chart figcaption{font-size:13px;color:var(--ink-soft);margin-top:6px}
 .small{font-size:13.5px;color:var(--ink-soft)}
 .prose{max-width:68ch}.prose p,.prose li{margin:0 0 .9em}.prose h2{margin-top:1.6em}
+form.contact{display:grid;gap:16px;max-width:620px;margin:10px 0 18px}
+form.contact label{display:flex;flex-direction:column;gap:5px;font-size:15px}
+form.contact input,form.contact textarea{font:inherit;padding:9px 11px;border:1px solid var(--paper-line-strong);background:#fff;color:var(--ink);border-radius:2px}
+form.contact button{justify-self:start;font-family:var(--label);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:11px 20px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:2px;cursor:pointer}
+.hp{position:absolute;left:-5000px;height:0;overflow:hidden}
+.note ul{margin:6px 0 0;padding-left:20px}
 `;

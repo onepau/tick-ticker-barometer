@@ -569,3 +569,69 @@ export async function getSiteText(db: D1Database, key: string): Promise<string |
     return null;
   }
 }
+
+// ── Sitemap, feed and dataset (unit 11) ──────────────────────────────────────
+
+/** A public reference page and the date of its latest publishable snapshot. */
+export interface PriceSitemapRow {
+  slug: string;
+  lastmod: string;
+}
+
+/** Reference price pages for the sitemap: public brands, at least one 'ok' price; lastmod = latest snapshot. */
+export async function listPriceSitemapRows(db: D1Database): Promise<PriceSitemapRow[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT r.slug, MAX(s.captured_at) AS lastmod
+         FROM watch_references r
+         JOIN brands b ON b.id = r.brand_id AND b.prices_public = 1
+         JOIN price_snapshots_countable s ON s.reference_id = r.id AND s.status <> 'error'
+        GROUP BY r.id
+       HAVING SUM(s.status = 'ok') > 0
+        ORDER BY r.slug`,
+    )
+    .all<PriceSitemapRow>();
+  return results;
+}
+
+/** One reference of the registry feed (references.json). */
+export interface ReferenceFeedRow {
+  id: number;
+  slug: string;
+  brand_slug: string;
+  brand_name: string;
+  ref_code: string;
+  family: string | null;
+  name: string | null;
+  markets: string;
+  last_checked: string;
+}
+
+export async function listReferenceFeedRows(db: D1Database): Promise<ReferenceFeedRow[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT r.id, r.slug, b.slug AS brand_slug, b.name AS brand_name, r.ref_code, r.family, r.name,
+              GROUP_CONCAT(DISTINCT s.market_code) AS markets, MAX(s.captured_at) AS last_checked
+         FROM watch_references r
+         JOIN brands b ON b.id = r.brand_id AND b.prices_public = 1
+         JOIN price_snapshots_countable s ON s.reference_id = r.id AND s.status = 'ok'
+        GROUP BY r.id
+        ORDER BY r.slug`,
+    )
+    .all<ReferenceFeedRow>();
+  return results;
+}
+
+/** Slugs of the brands that have public prices, for the feed's price_url. */
+export async function listBrandSlugsWithPublicPrices(db: D1Database): Promise<Set<string>> {
+  const { results } = await db
+    .prepare(
+      `SELECT b.slug FROM brands b
+        WHERE b.prices_public = 1
+          AND EXISTS (SELECT 1 FROM watch_references r
+                        JOIN price_snapshots_countable s ON s.reference_id = r.id AND s.status = 'ok'
+                       WHERE r.brand_id = b.id)`,
+    )
+    .all<{ slug: string }>();
+  return new Set(results.map((r) => r.slug));
+}
